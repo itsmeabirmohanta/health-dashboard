@@ -6,12 +6,15 @@ interface Thresholds {
   alert: { min: number; max: number };
 }
 
+type AlertStatus = 'normal' | 'warning' | 'alert';
+type Color = 'red' | 'blue' | 'green' | 'indigo' | 'orange';
+
 interface MetricCardProps {
   title: string;
   value: string;
   icon: React.ReactNode;
   change: number;
-  color: 'red' | 'blue' | 'green' | 'indigo' | 'orange';
+  color: Color;
   thresholds: Thresholds;
   currentValue: number;
 }
@@ -28,7 +31,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
   const [isHovered, setIsHovered] = React.useState(false);
   
   // Determine alert status
-  let alertStatus = 'normal';
+  let alertStatus: AlertStatus = 'normal';
   
   if (currentValue >= thresholds.alert.min && currentValue <= thresholds.alert.max) {
     alertStatus = 'alert';
@@ -37,7 +40,7 @@ const MetricCard: React.FC<MetricCardProps> = ({
   }
   
   // Color mappings with hover states
-  const colorClasses = {
+  const colorClasses: Record<AlertStatus, Record<Color, string>> = {
     normal: {
       red: `${isHovered ? 'bg-red-100' : 'bg-red-50'} border-red-100 hover:shadow-lg hover:border-red-200`,
       blue: `${isHovered ? 'bg-blue-100' : 'bg-blue-50'} border-blue-100 hover:shadow-lg hover:border-blue-200`,

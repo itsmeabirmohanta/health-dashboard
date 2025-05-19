@@ -161,7 +161,7 @@ const HealthGraph: React.FC<HealthGraphProps> = ({ data, selectedMetrics }) => {
         
         <Tooltip content={<CustomTooltip />} />
         <Legend 
-          onClick={(e) => handleLegendClick(e.dataKey)}
+          onClick={(e) => e.dataKey && handleLegendClick(String(e.dataKey))}
           iconType="circle"
           wrapperStyle={{ fontSize: '12px' }}
         />
