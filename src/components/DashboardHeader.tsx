@@ -3,7 +3,6 @@ import { useAuthStore } from '../stores/authStore';
 import { useHealthDataStore } from '../stores/healthDataStore';
 import { RefreshCw, Settings, Bell } from 'lucide-react';
 import { format } from 'date-fns';
-import { Link } from './Router';
 
 const DashboardHeader: React.FC = () => {
   const { user } = useAuthStore();
@@ -49,13 +48,13 @@ const DashboardHeader: React.FC = () => {
           <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
         </button>
         
-        <Link 
-          to="/settings" 
+        <a 
+          href="/settings" 
           className="flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-all duration-300 hover:scale-105"
         >
           <Settings size={16} />
           <span>Settings</span>
-        </Link>
+        </a>
       </div>
     </div>
   );

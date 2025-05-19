@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSettingsStore } from '../stores/settingsStore';
-import { Bell, RefreshCw, Scale, Heart, AlertTriangle, ArrowLeft } from 'lucide-react';
-import { Link } from '../components/Router';
+import { Bell, RefreshCw, Scale, Heart, AlertTriangle } from 'lucide-react';
 
 const Settings: React.FC = () => {
   const { 
@@ -10,26 +9,16 @@ const Settings: React.FC = () => {
     units, 
     setUnits,
     thresholds, 
-    setThreshold,
-    notifications,
-    toggleNotification
+    setThreshold
   } = useSettingsStore();
 
   return (
     <div className="p-4 md:p-6 lg:p-8 max-w-4xl mx-auto">
-      <div className="flex items-center gap-4 mb-6">
-        <Link 
-          to="/"
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-        >
-          <ArrowLeft size={20} />
-        </Link>
-        <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
-      </div>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Settings</h1>
       
       <div className="space-y-8">
         {/* Sync Frequency */}
-        <div className="bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg">
+        <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-start gap-4">
             <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
               <RefreshCw size={24} />
@@ -47,7 +36,7 @@ const Settings: React.FC = () => {
                   id="syncFrequency"
                   value={syncFrequency}
                   onChange={(e) => setSyncFrequency(Number(e.target.value))}
-                  className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-300"
+                  className="w-full md:w-64 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="5">5 seconds (Demo)</option>
                   <option value="10">10 seconds</option>
@@ -63,7 +52,7 @@ const Settings: React.FC = () => {
         </div>
         
         {/* Units */}
-        <div className="bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg">
+        <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-start gap-4">
             <div className="p-2 bg-green-50 rounded-lg text-green-600">
               <Scale size={24} />
@@ -85,7 +74,7 @@ const Settings: React.FC = () => {
                         name="temperatureUnit"
                         checked={units.temperature === 'fahrenheit'}
                         onChange={() => setUnits({ ...units, temperature: 'fahrenheit' })}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 transition-all duration-300"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                       />
                       <span className="ml-2 text-gray-700">Fahrenheit (°F)</span>
                     </label>
@@ -95,7 +84,7 @@ const Settings: React.FC = () => {
                         name="temperatureUnit"
                         checked={units.temperature === 'celsius'}
                         onChange={() => setUnits({ ...units, temperature: 'celsius' })}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 transition-all duration-300"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                       />
                       <span className="ml-2 text-gray-700">Celsius (°C)</span>
                     </label>
@@ -113,7 +102,7 @@ const Settings: React.FC = () => {
                         name="distanceUnit"
                         checked={units.distance === 'miles'}
                         onChange={() => setUnits({ ...units, distance: 'miles' })}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 transition-all duration-300"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                       />
                       <span className="ml-2 text-gray-700">Miles (mi)</span>
                     </label>
@@ -123,7 +112,7 @@ const Settings: React.FC = () => {
                         name="distanceUnit"
                         checked={units.distance === 'kilometers'}
                         onChange={() => setUnits({ ...units, distance: 'kilometers' })}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 transition-all duration-300"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                       />
                       <span className="ml-2 text-gray-700">Kilometers (km)</span>
                     </label>
@@ -135,7 +124,7 @@ const Settings: React.FC = () => {
         </div>
         
         {/* Alert Thresholds */}
-        <div className="bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg">
+        <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-start gap-4">
             <div className="p-2 bg-red-50 rounded-lg text-red-600">
               <Bell size={24} />
@@ -223,7 +212,7 @@ const Settings: React.FC = () => {
         </div>
         
         {/* Notification Preferences */}
-        <div className="bg-white rounded-xl shadow-md p-6 transition-all duration-300 hover:shadow-lg">
+        <div className="bg-white rounded-xl shadow-md p-6">
           <div className="flex items-start gap-4">
             <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
               <Bell size={24} />
@@ -242,8 +231,6 @@ const Settings: React.FC = () => {
                     <input 
                       id="alertToggle" 
                       type="checkbox" 
-                      checked={notifications.alerts}
-                      onChange={() => toggleNotification('alerts')}
                       className="absolute w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer peer checked:right-0 right-[50%] checked:border-blue-600 border-gray-300 top-0 transition-all"
                     />
                     <label 
@@ -261,8 +248,6 @@ const Settings: React.FC = () => {
                     <input 
                       id="syncToggle" 
                       type="checkbox" 
-                      checked={notifications.sync}
-                      onChange={() => toggleNotification('sync')}
                       className="absolute w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer peer checked:right-0 right-[50%] checked:border-blue-600 border-gray-300 top-0 transition-all"
                     />
                     <label 
@@ -280,8 +265,6 @@ const Settings: React.FC = () => {
                     <input 
                       id="goalToggle" 
                       type="checkbox" 
-                      checked={notifications.goals}
-                      onChange={() => toggleNotification('goals')}
                       className="absolute w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer peer checked:right-0 right-[50%] checked:border-blue-600 border-gray-300 top-0 transition-all"
                     />
                     <label 

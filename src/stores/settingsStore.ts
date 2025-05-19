@@ -18,25 +18,17 @@ interface Thresholds {
   temperature: ThresholdRange;
 }
 
-interface Notifications {
-  alerts: boolean;
-  sync: boolean;
-  goals: boolean;
-}
-
 interface SettingsState {
-  syncFrequency: number;
+  syncFrequency: number; // in seconds
   units: Units;
   thresholds: Thresholds;
-  notifications: Notifications;
   setSyncFrequency: (frequency: number) => void;
   setUnits: (units: Units) => void;
   setThreshold: (metric: keyof Thresholds, range: ThresholdRange) => void;
-  toggleNotification: (type: keyof Notifications) => void;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
-  syncFrequency: 10,
+  syncFrequency: 10, // 10 seconds by default
   
   units: {
     temperature: 'fahrenheit',
@@ -49,12 +41,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     sleep: { min: 6, max: 9 },
     steps: { min: 5000, max: 15000 },
     temperature: { min: 97, max: 100 }
-  },
-
-  notifications: {
-    alerts: true,
-    sync: false,
-    goals: true
   },
   
   setSyncFrequency: (frequency: number) => set({
@@ -69,13 +55,6 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     thresholds: {
       ...state.thresholds,
       [metric]: range
-    }
-  })),
-
-  toggleNotification: (type: keyof Notifications) => set(state => ({
-    notifications: {
-      ...state.notifications,
-      [type]: !state.notifications[type]
     }
   }))
 }));
