@@ -17,15 +17,18 @@ import {
   TrendingUp,
   ChevronDown,
   Plus,
-  Check
+  Check,
+  Database,
+  BarChart
 } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
 import { DeviceStatusCard } from "@/components/DeviceStatusCard";
 import { HealthTrendCard } from "@/components/HealthTrendCard";
 import { HeartRateMonitor } from "@/components/ui/HeartRateMonitor";
 import { OxygenSaturationGauge } from "@/components/ui/OxygenSaturationGauge";
 import { StepsCounter } from "@/components/ui/StepsCounter";
+import { ScheduleCard } from "@/components/ui/ScheduleCard";
+import { scheduleActivities } from "@/app/store/scheduleData";
 
 export default function DashboardPage() {
   const { 
@@ -34,6 +37,8 @@ export default function DashboardPage() {
     fetchHistoricalData,
     historicalData,
     selectedTimeRange,
+    activeDataset,
+    setActiveDataset
   } = useHealthStore();
   
   const [isLoading, setIsLoading] = useState(true);
@@ -63,33 +68,6 @@ export default function DashboardPage() {
     fetchHistoricalData(range as '24h' | '7d' | '30d' | '90d');
   };
 
-  // Mock schedule data
-  const scheduleData = [
-    {
-      id: 1,
-      title: "Kettlebell Swing",
-      time: "10:00 AM",
-      completed: true,
-      details: "5/4 sets • Logged"
-    },
-    {
-      id: 2,
-      title: "Outdoor Run",
-      time: "14:30 PM",
-      completed: false,
-      details: "3.3 miles",
-      inProgress: true
-    },
-    {
-      id: 3,
-      title: "Sleep Analysis",
-      time: "23:00 PM",
-      completed: false,
-      details: "8+ hours • 95% quality",
-      upcoming: true
-    }
-  ];
-
   // Mock performance data
   const performanceData = {
     improvement: "26%",
@@ -97,6 +75,13 @@ export default function DashboardPage() {
     weeklyGoal: "4%",
     progress: 42
   };
+
+  const datasets = [
+    { id: 'normalDay', name: 'Normal Day' },
+    { id: 'highActivity', name: 'High Activity' },
+    { id: 'illness', name: 'Illness/Stress' },
+    { id: 'recovery', name: 'Recovery Day' }
+  ];
 
   return (
     <div className="p-4 md:p-6 max-w-[1600px] mx-auto">
@@ -113,15 +98,31 @@ export default function DashboardPage() {
             </div>
             
             <div className="flex items-center gap-3 mt-4 md:mt-0">
+              {/* Dataset selector */}
+              <div className="relative">
+                <select 
+                  value={activeDataset}
+                  onChange={(e) => setActiveDataset(e.target.value as any)}
+                  className="flex items-center gap-2 px-3 py-2 bg-white shadow-sm border border-gray-100 text-gray-700 rounded-xl hover:bg-white/90 transition-all appearance-none pr-8 text-sm font-medium"
+                >
+                  {datasets.map(dataset => (
+                    <option key={dataset.id} value={dataset.id}>
+                      {dataset.name}
+                    </option>
+                  ))}
+                </select>
+                <Database className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
+              </div>
+              
               <button 
                 onClick={() => syncMetrics()}
-                className="flex items-center gap-2 px-4 py-2 bg-white shadow-sm border border-gray-100 hover:border-red-100 text-gray-700 rounded-xl hover:bg-white/90 transition-all"
+                className="flex items-center gap-2 px-3 py-2 bg-white shadow-sm border border-gray-100 hover:border-red-100 text-gray-700 rounded-xl hover:bg-white/90 transition-all"
               >
                 <RefreshCw className="w-4 h-4 text-red-500" />
                 <span>Refresh Data</span>
               </button>
               
-              <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl shadow-sm hover:shadow-md transition-all">
+              <button className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl shadow-sm hover:shadow-md transition-all">
                 <Download className="w-4 h-4" />
                 <span>Export Report</span>
               </button>
@@ -237,30 +238,33 @@ export default function DashboardPage() {
           {/* Health Metrics Card */}
           <div className="glass rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900">Health Metrics</h2>
+              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <BarChart className="w-5 h-5 text-blue-500" />
+                Health Metrics
+              </h2>
               
-              <div className="flex">
+              <div className="flex bg-gray-100 rounded-lg overflow-hidden">
                 <button 
                   onClick={() => handleTimeRangeChange('24h')}
-                  className={`px-3 py-1 text-sm rounded-md ${selectedTimeframe === '24h' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                  className={`px-3 py-1 text-sm ${selectedTimeframe === '24h' ? 'bg-red-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
                 >
                   24h
                 </button>
                 <button 
                   onClick={() => handleTimeRangeChange('7d')}
-                  className={`px-3 py-1 text-sm rounded-md ${selectedTimeframe === '7d' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                  className={`px-3 py-1 text-sm ${selectedTimeframe === '7d' ? 'bg-red-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
                 >
                   7d
                 </button>
                 <button 
                   onClick={() => handleTimeRangeChange('30d')}
-                  className={`px-3 py-1 text-sm rounded-md ${selectedTimeframe === '30d' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                  className={`px-3 py-1 text-sm ${selectedTimeframe === '30d' ? 'bg-red-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
                 >
                   30d
                 </button>
                 <button 
                   onClick={() => handleTimeRangeChange('90d')}
-                  className={`px-3 py-1 text-sm rounded-md ${selectedTimeframe === '90d' ? 'bg-red-500 text-white' : 'bg-gray-100 text-gray-700'}`}
+                  className={`px-3 py-1 text-sm ${selectedTimeframe === '90d' ? 'bg-red-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
                 >
                   90d
                 </button>
@@ -268,39 +272,20 @@ export default function DashboardPage() {
             </div>
             
             {historicalData.length > 0 ? (
-              <HealthTrendCard 
-                historicalData={historicalData}
-                title=""
-                defaultMetrics={["heartRate", "bloodOxygen"]}
-                selectedTimeRange={selectedTimeRange}
-                onTimeRangeChange={handleTimeRangeChange}
-              />
+              <div className="h-[300px]">
+                <HealthTrendCard 
+                  historicalData={historicalData}
+                  title=""
+                  defaultMetrics={["heartRate", "bloodOxygen"]}
+                  selectedTimeRange={selectedTimeRange}
+                  onTimeRangeChange={handleTimeRangeChange}
+                />
+              </div>
             ) : (
-              <div className="flex items-center justify-center h-40 bg-white/30 rounded-xl">
+              <div className="flex items-center justify-center h-[300px] bg-white/30 rounded-xl">
                 <p className="text-gray-500">No historical data available</p>
               </div>
             )}
-          </div>
-
-          {/* Current Metrics */}
-          <div className="glass rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Zap className="w-5 h-5 text-red-500" />
-                Current Metrics
-              </h2>
-              <button 
-                onClick={() => syncMetrics()} 
-                className="flex items-center gap-1 text-sm text-red-500 hover:text-red-600 transition-colors"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                Refresh
-              </button>
-            </div>
-            
-            <div className="flex items-center justify-center h-40 bg-white/30 rounded-xl">
-              <p className="text-gray-500">No metrics available</p>
-            </div>
           </div>
 
           {/* Weekly Performance */}
@@ -354,7 +339,7 @@ export default function DashboardPage() {
           <div className="glass rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-gray-900">Heart Rate Monitor</h2>
-              <span className="text-sm text-gray-500">Real-time</span>
+              <span className="text-sm text-gray-500 bg-white/60 px-2 py-0.5 rounded-md">Real-time</span>
             </div>
             
             <div className="flex flex-col md:flex-row gap-8">
@@ -381,8 +366,12 @@ export default function DashboardPage() {
                 
                 <div className="mt-6">
                   <h3 className="text-sm font-medium text-gray-700 mb-2">Current Status</h3>
-                  <p className="text-sm text-gray-600">Your heart rate is within normal range.</p>
-                  <p className="text-xs text-gray-500 mt-1">Last updated: 5:30:34 PM</p>
+                  <p className="text-sm text-gray-600">
+                    {currentMetrics.heartRate?.status === 'warning' && 'Your heart rate is elevated. Consider resting if not exercising.'}
+                    {currentMetrics.heartRate?.status === 'critical' && 'Your heart rate is very high. Please check your condition.'}
+                    {(!currentMetrics.heartRate?.status || currentMetrics.heartRate?.status === 'normal') && 'Your heart rate is within normal range.'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Last updated: {new Date().toLocaleTimeString()}</p>
                 </div>
               </div>
             </div>
@@ -392,7 +381,7 @@ export default function DashboardPage() {
           <div className="glass rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-lg font-semibold text-gray-900">Blood Oxygen Level</h2>
-              <span className="text-sm text-gray-500">Real-time</span>
+              <span className="text-sm text-gray-500 bg-white/60 px-2 py-0.5 rounded-md">Real-time</span>
             </div>
             
             <div className="flex flex-col md:flex-row gap-8">
@@ -418,8 +407,12 @@ export default function DashboardPage() {
                 
                 <div className="mt-6">
                   <h3 className="text-sm font-medium text-gray-700 mb-2">Understanding Blood Oxygen</h3>
-                  <p className="text-sm text-gray-600">Your blood oxygen is at a healthy level, indicating good respiratory function.</p>
-                  <p className="text-xs text-gray-500 mt-1">Last updated: 5:30:34 PM</p>
+                  <p className="text-sm text-gray-600">
+                    {currentMetrics.bloodOxygen?.status === 'warning' && 'Your blood oxygen is below normal range. Monitor your breathing.'}
+                    {currentMetrics.bloodOxygen?.status === 'critical' && 'Your blood oxygen is low. Consider consulting a healthcare provider.'}
+                    {(!currentMetrics.bloodOxygen?.status || currentMetrics.bloodOxygen?.status === 'normal') && 'Your blood oxygen is at a healthy level, indicating good respiratory function.'}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Last updated: {new Date().toLocaleTimeString()}</p>
                 </div>
               </div>
             </div>
@@ -444,7 +437,9 @@ export default function DashboardPage() {
             <div className="flex justify-between items-end mb-6">
               <div>
                 <div className="flex items-baseline">
-                  <span className="text-3xl font-bold text-gray-900">72</span>
+                  <span className="text-3xl font-bold text-gray-900">
+                    {currentMetrics.restingHeartRate?.value || 72}
+                  </span>
                   <span className="text-gray-500 ml-1">bpm</span>
                 </div>
                 <span className="text-xs text-gray-500">Resting</span>
@@ -468,72 +463,12 @@ export default function DashboardPage() {
             </div>
             
             <div className="h-40 flex items-center justify-center bg-white/30 rounded-xl">
-              <p className="text-gray-500">No data available</p>
+              <p className="text-gray-500">Chart data loading...</p>
             </div>
           </div>
           
-          {/* Schedule Card */}
-          <div className="glass rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-purple-500" />
-                My Schedule
-              </h2>
-              <button className="flex items-center text-sm text-gray-500 gap-1">
-                Last Week
-                <ChevronDown className="w-4 h-4" />
-              </button>
-            </div>
-            
-            <div className="flex justify-between mb-4">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, index) => {
-                const isToday = index === 3; // Thursday is today for demo
-                return (
-                  <div key={day} className="text-center">
-                    <div className="text-xs text-gray-500 mb-1">{day}</div>
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      isToday ? 'bg-red-500 text-white' : 'text-gray-700'
-                    }`}>
-                      {12 + index}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            
-            <div className="space-y-3 mt-6">
-              {scheduleData.map((item) => (
-                <div key={item.id} className="relative pl-6 pb-4 border-l border-gray-100 last:border-0 last:pb-0">
-                  <div className={`absolute top-0 -left-1.5 w-3 h-3 rounded-full ${
-                    item.completed ? 'bg-green-500' : 
-                    item.inProgress ? 'bg-blue-500' : 'bg-gray-300'
-                  }`}>
-                    {item.completed && <Check className="w-3 h-3 text-white" />}
-                  </div>
-                  
-                  <div className="text-xs text-gray-500 mb-1">{item.time}</div>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-900">{item.title}</h4>
-                      <p className={`text-xs ${
-                        item.completed ? 'text-green-500' : 
-                        item.inProgress ? 'text-blue-500' : 'text-gray-500'
-                      }`}>
-                        {item.completed ? 'Completed' : 
-                         item.inProgress ? 'In Progress' : 'Upcoming'}
-                      </p>
-                    </div>
-                    <div className="text-xs text-gray-500">{item.details}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            <button className="w-full mt-6 py-2.5 bg-white border border-gray-100 rounded-xl text-gray-700 text-sm font-medium flex items-center justify-center gap-1 hover:bg-gray-50 transition-colors">
-              <span>Add New Activity</span>
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
+          {/* Schedule Card - Replace the old implementation with our new one */}
+          <ScheduleCard activities={scheduleActivities} />
         </div>
       </div>
     </div>
