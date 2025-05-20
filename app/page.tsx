@@ -29,6 +29,9 @@ import { MetricsGrid } from "@/components/MetricsGrid";
 import { MetricGauge } from "@/components/MetricGauge";
 import { HealthTrendCard } from "@/components/HealthTrendCard";
 import Image from "next/image";
+import { HeartRateMonitor } from "@/components/ui/HeartRateMonitor";
+import { OxygenSaturationGauge } from "@/components/ui/OxygenSaturationGauge";
+import { StepsCounter } from "@/components/ui/StepsCounter";
 
 export default function DashboardPage() {
   const { 
@@ -277,6 +280,127 @@ export default function DashboardPage() {
               </div>
               <div className="w-full bg-gray-100 rounded-full h-2.5">
                 <div className="bg-gradient-to-r from-red-500 to-red-600 h-2.5 rounded-full" style={{ width: '42%' }}></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Heart Rate Monitor Section */}
+          <div className="glass rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">Heart Rate Monitor</h2>
+              <div className="bg-white/50 p-1.5 rounded-lg text-sm font-medium text-gray-600">Real-time</div>
+            </div>
+            
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-shrink-0 flex justify-center w-full md:w-auto">
+                {currentMetrics.heartRate ? (
+                  <HeartRateMonitor 
+                    value={currentMetrics.heartRate.value as number} 
+                    size="lg"
+                  />
+                ) : (
+                  <div className="h-48 w-48 rounded-full bg-gray-100 flex items-center justify-center">
+                    <p className="text-gray-400">No data</p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex-grow w-full">
+                <div className="bg-white/50 rounded-xl p-4 mb-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Heart Rate Zones</h3>
+                  <div className="space-y-3">
+                    {[
+                      { name: "Rest", range: "40-60 bpm", color: "bg-blue-500" },
+                      { name: "Fat Burn", range: "60-70 bpm", color: "bg-green-500" },
+                      { name: "Cardio", range: "70-85 bpm", color: "bg-yellow-500" },
+                      { name: "Peak", range: "85+ bpm", color: "bg-red-500" }
+                    ].map((zone, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${zone.color}`}></div>
+                        <div className="flex-grow flex items-center justify-between">
+                          <span className="text-sm font-medium">{zone.name}</span>
+                          <span className="text-xs text-gray-500">{zone.range}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="bg-white/50 rounded-xl p-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Current Status</h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {currentMetrics.heartRate && (currentMetrics.heartRate.value as number) > 100 ? (
+                      "Your heart rate is elevated. Consider taking a short rest if you're not exercising."
+                    ) : currentMetrics.heartRate && (currentMetrics.heartRate.value as number) < 60 ? (
+                      "Your heart rate is low, which is common when resting or for those with high cardiovascular fitness."
+                    ) : (
+                      "Your heart rate is within normal range."
+                    )}
+                  </p>
+                  <div className="text-xs text-gray-500">
+                    Last updated: {new Date().toLocaleTimeString()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Blood Oxygen Monitor Section */}
+          <div className="glass rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-gray-900">Blood Oxygen Level</h2>
+              <div className="bg-white/50 p-1.5 rounded-lg text-sm font-medium text-gray-600">Real-time</div>
+            </div>
+            
+            <div className="flex flex-col md:flex-row items-center gap-8">
+              <div className="flex-shrink-0 flex justify-center w-full md:w-auto">
+                {currentMetrics.bloodOxygen ? (
+                  <OxygenSaturationGauge 
+                    value={currentMetrics.bloodOxygen.value as number} 
+                    size="lg"
+                  />
+                ) : (
+                  <div className="h-48 w-32 rounded-2xl bg-gray-100 flex items-center justify-center">
+                    <p className="text-gray-400">No data</p>
+                  </div>
+                )}
+              </div>
+              
+              <div className="flex-grow w-full">
+                <div className="bg-white/50 rounded-xl p-4 mb-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Blood Oxygen Range</h3>
+                  <div className="space-y-3">
+                    {[
+                      { name: "Normal", range: "95-100%", color: "bg-blue-500" },
+                      { name: "Below Normal", range: "90-94%", color: "bg-amber-500" },
+                      { name: "Low", range: "Below 90%", color: "bg-red-500" },
+                    ].map((level, i) => (
+                      <div key={i} className="flex items-center gap-3">
+                        <div className={`w-3 h-3 rounded-full ${level.color}`}></div>
+                        <div className="flex-grow flex items-center justify-between">
+                          <span className="text-sm font-medium">{level.name}</span>
+                          <span className="text-xs text-gray-500">{level.range}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                
+                <div className="bg-white/50 rounded-xl p-4">
+                  <h3 className="text-sm font-medium text-gray-700 mb-2">Understanding Blood Oxygen</h3>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {currentMetrics.bloodOxygen && (currentMetrics.bloodOxygen.value as number) < 90 ? (
+                      "Your blood oxygen level is low. This could indicate respiratory issues. Please consult a healthcare provider."
+                    ) : currentMetrics.bloodOxygen && (currentMetrics.bloodOxygen.value as number) < 95 ? (
+                      "Your blood oxygen is below normal range. Monitor your breathing and rest if needed."
+                    ) : (
+                      "Your blood oxygen is at a healthy level, indicating good respiratory function."
+                    )}
+                  </p>
+                  <div className="text-xs text-gray-500">
+                    Last updated: {new Date().toLocaleTimeString()}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

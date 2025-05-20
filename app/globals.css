@@ -34,7 +34,7 @@
   }
 
   body {
-    @apply bg-[#F7F8FA] text-foreground min-h-screen;
+    @apply bg-[#F7F8FA] text-slate-900 min-h-screen;
   }
 }
 

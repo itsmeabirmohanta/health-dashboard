@@ -28,6 +28,29 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-inter)"],
       },
+      animation: {
+        'heartbeat': 'heartbeat 0.3s ease-in-out',
+        'pulse-ring': 'pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'bubble': 'bubble 3s ease-in-out infinite',
+      },
+      keyframes: {
+        heartbeat: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.15)' },
+        },
+        'pulse-ring': {
+          '0%': { transform: 'scale(0.95)', opacity: '1' },
+          '100%': { transform: 'scale(1.5)', opacity: '0' },
+        },
+        bubble: {
+          '0%': { transform: 'translateY(0)', opacity: '0' },
+          '50%': { opacity: '0.8' },
+          '100%': { transform: 'translateY(-100px)', opacity: '0' },
+        }
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },
     },
   },
   plugins: [],
