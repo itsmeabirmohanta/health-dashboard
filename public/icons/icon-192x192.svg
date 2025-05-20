@@ -1,0 +1,5 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" fill="#ef4444" />
+  <circle cx="96" cy="96" r="48" fill="white" />
+  <text x="96" y="101" font-family="Arial" font-size="24" fill="#ef4444" text-anchor="middle">FP</text>
+</svg>

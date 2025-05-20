@@ -1,4 +1,4 @@
-import { HistoricalDataPoint } from "@/types/health";
+import { HistoricalDataPoint } from "../types/health";
 
 // This simulates an AI service that analyzes health data
 // In a real app, this would connect to an ML model or API like OpenAI

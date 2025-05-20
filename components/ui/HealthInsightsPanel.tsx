@@ -12,7 +12,25 @@ import {
 } from 'lucide-react';
 import { useHealthStore } from '@/store/useHealthStore';
 import { AIInsightsService } from '@/app/services/aiInsightsService';
-import { HealthInsight, HealthScore } from '@/app/types/health';
+import { HealthInsight, HealthScore, HistoricalDataPoint as AppHistoricalDataPoint } from '@/app/types/health';
+import { HistoricalDataPoint as StoreHistoricalDataPoint } from '@/types/index';
+
+// Adapter function to convert between different HistoricalDataPoint types
+function convertHistoricalDataPoints(data: StoreHistoricalDataPoint[]): AppHistoricalDataPoint[] {
+  return data.map(point => ({
+    timestamp: new Date(point.timestamp).getTime(),
+    heartRate: point.heartRate || 0,
+    bloodOxygen: point.bloodOxygen || 0,
+    steps: point.steps || 0,
+    sleep: point.sleep || 0,
+    temperature: point.temperature || 0,
+    weight: point.weight || 0,
+    bloodPressure: point.bloodPressureSys && point.bloodPressureDia ? {
+      sys: point.bloodPressureSys,
+      dia: point.bloodPressureDia
+    } : undefined
+  }));
+}
 
 interface HealthInsightsPanelProps {
   className?: string;
@@ -39,20 +57,23 @@ export function HealthInsightsPanel({ className = '', compact = false }: HealthI
       setIsLoading(true);
       
       try {
+        // Convert data to app's HistoricalDataPoint type
+        const appHistoricalData = convertHistoricalDataPoints(historicalData);
+        
         // Get anomalies and insights
         const detectedInsights = AIInsightsService.detectAnomalies(
-          historicalData, 
+          appHistoricalData, 
           selectedTimeRange
         );
         
         // Get health score
-        const score = AIInsightsService.calculateHealthScore(historicalData);
+        const score = AIInsightsService.calculateHealthScore(appHistoricalData);
         
         // Get recommendations
-        const recommendations = AIInsightsService.getPersonalizedRecommendations(historicalData);
+        const recommendations = AIInsightsService.getPersonalizedRecommendations(appHistoricalData);
         
         // Get AI analysis
-        const analysis = await AIInsightsService.getAIAnalysis(historicalData);
+        const analysis = await AIInsightsService.getAIAnalysis(appHistoricalData);
         
         setInsights(detectedInsights);
         setHealthScore(score);

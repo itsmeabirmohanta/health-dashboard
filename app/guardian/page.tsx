@@ -319,7 +319,9 @@ export default function GuardianPage() {
                     </div>
                     <div className="mt-2">
                       <div className="text-2xl font-bold">
-                        {selectedMember.metrics.heartRate.value} 
+                        {typeof selectedMember.metrics.heartRate.value === 'object' 
+                          ? `${selectedMember.metrics.heartRate.value.sys}/${selectedMember.metrics.heartRate.value.dia}`
+                          : selectedMember.metrics.heartRate.value}
                         <span className="text-sm font-normal text-gray-500">
                           {selectedMember.metrics.heartRate.unit}
                         </span>
@@ -356,7 +358,9 @@ export default function GuardianPage() {
                     </div>
                     <div className="mt-2">
                       <div className="text-2xl font-bold">
-                        {selectedMember.metrics.bloodOxygen.value}
+                        {typeof selectedMember.metrics.bloodOxygen.value === 'object' 
+                          ? `${selectedMember.metrics.bloodOxygen.value.sys}/${selectedMember.metrics.bloodOxygen.value.dia}`
+                          : selectedMember.metrics.bloodOxygen.value}
                         <span className="text-sm font-normal text-gray-500">
                           {selectedMember.metrics.bloodOxygen.unit}
                         </span>

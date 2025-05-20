@@ -89,7 +89,7 @@ export const useHealthStore = create<HealthStore>()(
             metrics[type] = metric;
             
             // Check if the metric should trigger an alert
-            const alert = checkMetricAlerts(metric, settings.thresholds);
+            const alert = checkMetricAlerts(metric, settings.thresholds as any);
             if (alert) {
               newAlerts.push(alert);
             }
