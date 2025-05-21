@@ -9,31 +9,51 @@ import {
   Moon, 
   Thermometer, 
   Scale,
-  Filter
+  Filter as FilterIcon,
+  BarChart3,
+  CalendarDays,
+  ChevronDown
 } from "lucide-react";
 import { HealthGraph } from "@/components/HealthGraph";
+import { cn } from "@/lib/utils";
+
+// Define a type for your metric configurations for clarity
+interface MetricGraphConfig {
+  key: string;
+  name: string;
+  color: string;
+  yAxisId: string;
+  domain: [number, number] | ['dataMin', 'dataMax'] | [number, 'dataMax'] | ['dataMin', number];
+  referenceValue?: number;
+  referenceLabel: string;
+  unit: string;
+  icon: React.ElementType;
+}
 
 export default function MetricsPage() {
-  const [selectedMetric, setSelectedMetric] = useState<string>("all");
+  const [selectedMetricKey, setSelectedMetricKey] = useState<string>("all");
   
   const { 
-    currentMetrics,
     historicalData,
     fetchHistoricalData,
-    selectedTimeRange
+    selectedTimeRange,
+    setTimeRange
   } = useHealthStore(state => ({
-    currentMetrics: state.currentMetrics,
     historicalData: state.historicalData,
     fetchHistoricalData: state.fetchHistoricalData,
-    selectedTimeRange: state.selectedTimeRange
+    selectedTimeRange: state.selectedTimeRange,
+    setTimeRange: state.setTimeRange
   }));
 
   // Initial data fetch
   useEffect(() => {
-    fetchHistoricalData('24h');
-  }, [fetchHistoricalData]);
+    if(selectedTimeRange) {
+        fetchHistoricalData(selectedTimeRange);
+    } else {
+        fetchHistoricalData('24h');
+    }
+  }, [fetchHistoricalData, selectedTimeRange]);
 
-  // Time range options
   const timeRangeOptions: { label: string; value: '24h' | '7d' | '30d' | '90d' }[] = [
     { label: "24 Hours", value: "24h" },
     { label: "7 Days", value: "7d" },
@@ -41,284 +61,114 @@ export default function MetricsPage() {
     { label: "90 Days", value: "90d" },
   ];
 
-  // Available metrics filters
-  const metricFilters = [
-    { id: "all", label: "All Metrics", icon: Filter },
-    { id: "heartRate", label: "Heart Rate", icon: Heart },
-    { id: "bloodOxygen", label: "Blood Oxygen", icon: Droplets },
-    { id: "steps", label: "Steps", icon: Activity },
-    { id: "sleep", label: "Sleep", icon: Moon },
-    { id: "temperature", label: "Temperature", icon: Thermometer },
-    { id: "weight", label: "Weight", icon: Scale }
+  const allMetricGraphConfigs: MetricGraphConfig[] = [
+    { key: "heartRate", name: "Heart Rate", icon: Heart, color: "#ef4444", yAxisId: "heartRate", domain: [40, 180], referenceValue: 70, referenceLabel: "Resting HR", unit: "bpm" },
+    { key: "bloodOxygen", name: "Blood Oxygen", icon: Droplets, color: "#3b82f6", yAxisId: "bloodOxygen", domain: [85, 100], referenceValue: 95, referenceLabel: "Normal SpO2", unit: "%" },
+    { key: "steps", name: "Steps", icon: Activity, color: "#22c55e", yAxisId: "steps", domain: ['dataMin', 'dataMax'], referenceValue: 10000, referenceLabel: "Daily Goal", unit: "steps" },
+    { key: "sleep", name: "Sleep", icon: Moon, color: "#8b5cf6", yAxisId: "sleep", domain: [0, 12], referenceValue: 8, referenceLabel: "Optimal Sleep", unit: "h" },
+    { key: "temperature", name: "Body Temperature", icon: Thermometer, color: "#f59e0b", yAxisId: "temperature", domain: [95, 104], referenceValue: 98.6, referenceLabel: "Normal", unit: "°F" },
+    { key: "bloodPressureSystolic", name: "BP Systolic", icon: Heart, color: "#f43f5e", yAxisId: "bloodPressure", domain: [70, 180], referenceValue: 120, referenceLabel: "Normal Sys.", unit: "mmHg" },
+    { key: "bloodPressureDiastolic", name: "BP Diastolic", icon: Heart, color: "#ec4899", yAxisId: "bloodPressure", domain: [40, 110], referenceValue: 80, referenceLabel: "Normal Dia.", unit: "mmHg" },
+  ];
+  
+  const metricFilterOptions = [
+    { id: "all", label: "All Metrics", icon: BarChart3 },
+    ...allMetricGraphConfigs.map(m => ({ id: m.key, label: m.name, icon: m.icon }))
   ];
 
-  // Get metrics based on selection
-  const getFilteredMetrics = () => {
-    if (selectedMetric === "all") {
-      return [
-        {
-          key: "heartRate",
-          name: "Heart Rate",
-          color: "#ef4444",
-          yAxisId: "heartRate",
-          domain: [40, 180],
-          referenceValue: 70,
-          referenceLabel: "Resting HR",
-          unit: "bpm"
-        },
-        {
-          key: "bloodOxygen",
-          name: "Blood Oxygen",
-          color: "#3b82f6", 
-          yAxisId: "bloodOxygen",
-          domain: [85, 100],
-          referenceValue: 95,
-          referenceLabel: "Normal SpO2",
-          unit: "%"
-        },
-        {
-          key: "steps",
-          name: "Steps",
-          color: "#22c55e",
-          yAxisId: "steps",
-          domain: [0, 'dataMax'],
-          referenceValue: 10000,
-          referenceLabel: "Daily Goal",
-          unit: ""
-        },
-        {
-          key: "sleep",
-          name: "Sleep",
-          color: "#8b5cf6",
-          yAxisId: "sleep",
-          domain: [0, 12],
-          referenceValue: 8,
-          referenceLabel: "Optimal Sleep",
-          unit: "h"
-        },
-        {
-          key: "temperature",
-          name: "Temperature",
-          color: "#f59e0b",
-          yAxisId: "temperature",
-          domain: [96, 104],
-          referenceValue: 98.6,
-          referenceLabel: "Normal",
-          unit: "°F"
-        },
-        {
-          key: "weight",
-          name: "Weight",
-          color: "#8b5cf6",
-          yAxisId: "weight",
-          domain: ['dataMin - 10', 'dataMax + 10'],
-          referenceValue: null,
-          referenceLabel: "",
-          unit: "lbs"
-        }
-      ].filter(metric => selectedMetric === "all" || metric.key === selectedMetric);
-    } else {
-      // Return only the selected metric
-      const metricConfig = {
-        heartRate: {
-          key: "heartRate",
-          name: "Heart Rate",
-          color: "#ef4444",
-          yAxisId: "heartRate",
-          domain: [40, 180],
-          referenceValue: 70,
-          referenceLabel: "Resting HR",
-          unit: "bpm"
-        },
-        bloodOxygen: {
-          key: "bloodOxygen",
-          name: "Blood Oxygen",
-          color: "#3b82f6", 
-          yAxisId: "bloodOxygen",
-          domain: [85, 100],
-          referenceValue: 95,
-          referenceLabel: "Normal SpO2",
-          unit: "%"
-        },
-        steps: {
-          key: "steps",
-          name: "Steps",
-          color: "#22c55e",
-          yAxisId: "steps",
-          domain: [0, 'dataMax'],
-          referenceValue: 10000,
-          referenceLabel: "Daily Goal",
-          unit: ""
-        },
-        sleep: {
-          key: "sleep",
-          name: "Sleep",
-          color: "#8b5cf6",
-          yAxisId: "sleep",
-          domain: [0, 12],
-          referenceValue: 8,
-          referenceLabel: "Optimal Sleep",
-          unit: "h"
-        },
-        temperature: {
-          key: "temperature",
-          name: "Temperature",
-          color: "#f59e0b",
-          yAxisId: "temperature",
-          domain: [96, 104],
-          referenceValue: 98.6,
-          referenceLabel: "Normal",
-          unit: "°F"
-        },
-        weight: {
-          key: "weight",
-          name: "Weight",
-          color: "#8b5cf6",
-          yAxisId: "weight",
-          domain: ['dataMin - 10', 'dataMax + 10'],
-          referenceValue: null,
-          referenceLabel: "",
-          unit: "lbs"
-        }
-      };
-      
-      return [metricConfig[selectedMetric as keyof typeof metricConfig]];
-    }
+  const displayMetricsConfig = selectedMetricKey === "all" 
+    ? allMetricGraphConfigs 
+    : allMetricGraphConfigs.filter(m => m.key === selectedMetricKey);
+
+  const handleTimeRangeChange = (value: '24h' | '7d' | '30d' | '90d') => {
+    fetchHistoricalData(value);
   };
-
-  // Get title based on selected metric
-  const getDetailTitle = () => {
-    if (selectedMetric === "all") return "All Health Metrics";
-    const metric = metricFilters.find(m => m.id === selectedMetric);
-    return metric ? `${metric.label} Details` : "Metric Details";
-  };
-
-  const filteredMetrics = getFilteredMetrics();
-
+  
   return (
-    <div className="p-6 max-w-[1600px] mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Health Metrics</h1>
-          <p className="text-sm text-gray-500 mt-1">Track and analyze your health data</p>
-        </div>
-        <div className="flex items-center gap-4">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white/50 border border-white/20 text-gray-700 rounded-xl hover:bg-white/70 transition-all shadow-sm">
-            <Filter className="w-4 h-4" />
-            <span>Filter Metrics</span>
-          </button>
-        </div>
-      </div>
+    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      {/* Header */}
+      <header className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white flex items-center">
+          <BarChart3 className="w-8 h-8 mr-3 text-primary-500" /> Detailed Health Metrics
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400 mt-1">Dive deeper into your health data trends over time.</p>
+      </header>
 
-      {/* Metric Filters */}
-      <div className="glass rounded-2xl p-6 shadow-sm mb-6">
-        <div className="flex flex-wrap gap-2">
-          {metricFilters.map((filter) => {
-            const Icon = filter.icon;
-            return (
-              <button
-                key={filter.id}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all ${
-                  selectedMetric === filter.id
-                    ? "bg-white/50 text-gray-700 border border-white/20"
-                    : "text-gray-600 hover:bg-white/50 hover:border hover:border-white/20"
-                }`}
-                onClick={() => setSelectedMetric(filter.id)}
+      {/* Controls Section */}
+      <section className="mb-8 p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+          <div>
+            <label htmlFor="metricFilter" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              Select Metric
+            </label>
+            <div className="relative">
+              <select 
+                id="metricFilter"
+                value={selectedMetricKey}
+                onChange={(e) => setSelectedMetricKey(e.target.value)}
+                className="w-full appearance-none input-std pl-3 pr-10"
               >
-                <Icon className="w-4 h-4" />
-                <span>{filter.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Time Range Controls */}
-      <div className="glass rounded-2xl p-6 shadow-sm mb-6">
-        <div className="flex flex-wrap gap-2">
-          {timeRangeOptions.map((option) => (
-            <button
-              key={option.value}
-              className={`px-4 py-2 rounded-xl transition-all ${
-                selectedTimeRange === option.value
-                  ? "bg-white/50 text-gray-700 border border-white/20"
-                  : "text-gray-600 hover:bg-white/50 hover:border hover:border-white/20"
-              }`}
-              onClick={() => fetchHistoricalData(option.value)}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Current Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-        {Object.entries(currentMetrics).map(([key, metric]) => {
-          const Icon = metricFilters.find(f => f.id === key)?.icon || Filter;
-          return (
-            <div key={key} className="glass rounded-2xl p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold text-gray-900">{metricFilters.find(f => f.id === key)?.label}</h2>
-                <Icon className="w-5 h-5 text-gray-700" />
-              </div>
-              <div className="text-3xl font-bold text-gray-900">
-                {typeof metric.value === 'object' 
-                  ? `${(metric.value as any).sys}/${(metric.value as any).dia}`
-                  : (
-                     <>
-                       {metric.value}
-                       {metric.unit && <span className="text-sm font-normal ml-1">{metric.unit}</span>}
-                     </>
-                   )
-                }
-              </div>
-              <div className="text-sm text-gray-500 mt-1">
-                Last updated: {new Date(metric.timestamp).toLocaleTimeString()}
-              </div>
+                {metricFilterOptions.map(opt => (
+                  <option key={opt.id} value={opt.id}>{opt.label}</option>
+                ))}
+              </select>
+              <ChevronDown className="w-5 h-5 text-gray-400 dark:text-gray-500 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
-          );
-        })}
-      </div>
-
-      {/* Historical Data Graph */}
-      <div className="glass rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Historical Data</h2>
-          <div className="flex items-center gap-2">
-            {metricFilters.slice(1).map((filter) => {
-              const Icon = filter.icon;
-              return (
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+              Time Range
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {timeRangeOptions.map((option) => (
                 <button
-                  key={filter.id}
-                  className={`p-2 rounded-lg transition-all ${
-                    selectedMetric === filter.id
-                      ? "bg-white/50 text-gray-700 border border-white/20"
-                      : "text-gray-600 hover:bg-white/50 hover:border hover:border-white/20"
-                  }`}
-                  onClick={() => setSelectedMetric(filter.id)}
+                  key={option.value}
+                  type="button"
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-opacity-50",
+                    selectedTimeRange === option.value
+                      ? "bg-primary-600 text-white focus:ring-primary-500"
+                      : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600 focus:ring-gray-400"
+                  )}
+                  onClick={() => handleTimeRangeChange(option.value)}
                 >
-                  <Icon className="w-4 h-4" />
+                  {option.label}
                 </button>
-              );
-            })}
+              ))}
+            </div>
           </div>
         </div>
-        <div className="h-96">
-          <HealthGraph 
-            data={historicalData}
-            metrics={[
-              {
-                key: selectedMetric === "all" ? "heartRate" : selectedMetric,
-                name: metricFilters.find(f => f.id === (selectedMetric === "all" ? "heartRate" : selectedMetric))?.label || "",
-                color: "#ef4444",
-                yAxisId: selectedMetric === "all" ? "heartRate" : selectedMetric,
-                domain: [0, 'dataMax'],
-                unit: ""
-              }
-            ]}
-          />
+      </section>
+
+      {/* Graphs Section */}
+      {historicalData.length === 0 && (
+         <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+            <BarChart3 className="w-16 h-16 text-gray-300 dark:text-gray-500 mx-auto mb-4" />
+            <p className="text-lg font-medium text-gray-700 dark:text-gray-300">No historical data available.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Select a time range to view metrics or check back later.</p>
         </div>
+      )}
+
+      <div className={cn(
+          "grid gap-6",
+          displayMetricsConfig.length === 1 ? "grid-cols-1" : "grid-cols-1 lg:grid-cols-2"
+      )}>
+        {historicalData.length > 0 && displayMetricsConfig.map((metricConfig) => (
+          <div key={metricConfig.key} className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-xl">
+            <div className="flex items-center mb-4">
+              <metricConfig.icon className={cn("w-6 h-6 mr-2.5", metricConfig.color ? "" : "text-primary-500")} style={{color: metricConfig.color || undefined }} />
+              <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+                {metricConfig.name}
+              </h2>
+            </div>
+            <div className="h-[300px] sm:h-[350px]">
+              <HealthGraph
+                data={historicalData}
+                metrics={[metricConfig]}
+              />
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

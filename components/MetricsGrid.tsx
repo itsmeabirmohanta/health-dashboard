@@ -1,7 +1,7 @@
 "use client";
 
-import { MiniMetricGauge } from "./MetricGauge";
-import { MetricData, MetricType } from "@/types";
+import { InlineMetricCard } from "@/components/ui/InlineMetricCard";
+import { MetricData } from "@/types";
 
 interface MetricsGridProps {
   metrics: Record<string, MetricData>;
@@ -21,13 +21,13 @@ const metricsConfig: Record<string, MetricConfig> = {
   heartRate: {
     title: "Heart Rate",
     min: 40,
-    max: 200,
+    max: 120,
     color: "#ef4444",
     unit: "bpm",
   },
   bloodOxygen: {
     title: "Blood Oxygen",
-    min: 85,
+    min: 90,
     max: 100,
     color: "#3b82f6",
     unit: "%",
@@ -47,42 +47,58 @@ const metricsConfig: Record<string, MetricConfig> = {
     unit: "hours",
   },
   temperature: {
-    title: "Temperature",
+    title: "Body Temp",
     min: 95,
-    max: 105,
-    color: "#f97316",
+    max: 104,
+    color: "#d946ef",
     unit: "°F",
   },
   caloriesBurned: {
     title: "Calories",
     min: 0,
     max: 3000,
-    color: "#ec4899",
+    color: "#f97316",
     unit: "kcal",
+  },
+  bloodPressureSystolic: {
+    title: "BP Systolic",
+    min: 70,
+    max: 180,
+    color: "#f43f5e",
+    unit: "mmHg",
+  },
+  bloodPressureDiastolic: {
+    title: "BP Diastolic",
+    min: 40,
+    max: 110,
+    color: "#ec4899",
+    unit: "mmHg",
   },
 };
 
-export function MetricsGrid({ metrics, limit = 6 }: MetricsGridProps) {
-  // Filter metrics that can be displayed as gauges (numeric values)
+export function MetricsGrid({ metrics, limit }: MetricsGridProps) {
   const displayableMetrics = Object.entries(metrics)
-    .filter(([type, data]) => typeof data.value === "number" && metricsConfig[type])
-    .slice(0, limit);
+    .filter(([type, data]) => typeof data.value === 'number' && metricsConfig[type])
+    .slice(0, limit || Object.keys(metricsConfig).length);
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {displayableMetrics.map(([type, data]) => {
         const config = metricsConfig[type];
+        if (!config) return null;
+
+        const numericValue = typeof data.value === 'number' ? data.value : parseFloat(String(data.value));
+        const percentage = Math.max(0, Math.min(100, ((numericValue - config.min) / (config.max - config.min)) * 100));
+
         return (
-          <div key={type} className="glass rounded-xl p-3 flex justify-center hover:shadow-md transition-shadow">
-            <MiniMetricGauge
-              value={data.value as number}
-              min={config.min}
-              max={config.max}
-              title={config.title}
-              unit={data.unit.toString()}
-              color={config.color}
-            />
-          </div>
+          <InlineMetricCard
+            key={type}
+            title={config.title}
+            value={numericValue}
+            unit={config.unit}
+            percentage={percentage}
+            color={config.color}
+          />
         );
       })}
     </div>

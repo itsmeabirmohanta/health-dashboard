@@ -361,8 +361,14 @@ export const generateCurrentMetrics = (dataSet: 'normalDay' | 'highActivity' | '
       timestamp: now.toISOString(),
       status: temperatureStatus
     },
-    bloodPressure: {
-      value: `${latest.bloodPressureSystolic}/${latest.bloodPressureDiastolic}`,
+    bloodPressureSystolic: {
+      value: latest.bloodPressureSystolic!,
+      unit: 'mmHg',
+      timestamp: now.toISOString(),
+      status: 'normal'
+    },
+    bloodPressureDiastolic: {
+      value: latest.bloodPressureDiastolic!,
       unit: 'mmHg',
       timestamp: now.toISOString(),
       status: 'normal'
