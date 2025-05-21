@@ -7,6 +7,15 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://reactjs.org/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
+[![Netlify Status](https://img.shields.io/badge/Netlify-Deployed-success?style=for-the-badge&logo=netlify)](https://healdash.abirmahanta.site)
+
+<br />
+
+# 🌐 [LIVE DEMO](https://healdash.abirmahanta.site)
+
+## 👉 [healdash.abirmahanta.site](https://healdash.abirmahanta.site) 👈
+
+<br />
 
 A comprehensive health metrics monitoring dashboard that simulates real-time data from wearable devices and visualizes it using interactive charts and various health management tools.
 
