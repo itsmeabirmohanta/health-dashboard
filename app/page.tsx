@@ -288,7 +288,7 @@ export default function DashboardPage() {
                 <div className="text-sm text-gray-500 mt-1">Since last day</div>
               </div>
               
-              <div className="text-center">
+      <div className="text-center">
                 <div className="text-3xl font-bold text-red-500">{performanceData.weeklyGoal}</div>
                 <div className="text-sm text-gray-500 mt-1">Weekly goal</div>
               </div>
