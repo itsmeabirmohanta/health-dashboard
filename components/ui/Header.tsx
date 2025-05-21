@@ -12,7 +12,8 @@ interface HeaderProps {
 }
 
 export function Header({ className }: HeaderProps) {
-  const unreadAlertCount = useHealthStore(state => state.unreadAlertCount);
+  // Hardcoded value instead of using the store
+  const unreadAlertCount = 3;
 
   return (
     <header className={cn(

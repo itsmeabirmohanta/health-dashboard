@@ -14,16 +14,12 @@ export default function AnalyticsPage() {
   
   const { 
     historicalData,
-    syncMetrics,
     fetchHistoricalData,
-    selectedTimeRange,
-    isLoading
+    selectedTimeRange
   } = useHealthStore(state => ({
     historicalData: state.historicalData,
-    syncMetrics: state.syncMetrics,
     fetchHistoricalData: state.fetchHistoricalData,
-    selectedTimeRange: state.selectedTimeRange,
-    isLoading: state.isLoading
+    selectedTimeRange: state.selectedTimeRange
   }));
 
   // Handle theme toggle
@@ -35,9 +31,6 @@ export default function AnalyticsPage() {
 
   // Initial data fetch
   useEffect(() => {
-    syncMetrics();
-    fetchHistoricalData('30d'); // Default to monthly view for analytics
-    
     // Check system theme preference
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setTheme("dark");
@@ -53,7 +46,7 @@ export default function AnalyticsPage() {
       start: thirtyDaysAgo.toISOString().split('T')[0],
       end: today.toISOString().split('T')[0]
     });
-  }, [syncMetrics, fetchHistoricalData]);
+  }, []);
 
   // Time range options
   const timeRangeOptions: { label: string; value: '24h' | '7d' | '30d' | '90d' }[] = [

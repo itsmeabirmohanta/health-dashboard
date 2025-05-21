@@ -19,24 +19,19 @@ export default function MetricsPage() {
   const { 
     currentMetrics,
     historicalData,
-    syncMetrics,
     fetchHistoricalData,
-    selectedTimeRange,
-    isLoading
+    selectedTimeRange
   } = useHealthStore(state => ({
     currentMetrics: state.currentMetrics,
     historicalData: state.historicalData,
-    syncMetrics: state.syncMetrics,
     fetchHistoricalData: state.fetchHistoricalData,
-    selectedTimeRange: state.selectedTimeRange,
-    isLoading: state.isLoading
+    selectedTimeRange: state.selectedTimeRange
   }));
 
   // Initial data fetch
   useEffect(() => {
-    syncMetrics();
     fetchHistoricalData('24h');
-  }, [syncMetrics, fetchHistoricalData]);
+  }, [fetchHistoricalData]);
 
   // Time range options
   const timeRangeOptions: { label: string; value: '24h' | '7d' | '30d' | '90d' }[] = [
@@ -269,8 +264,14 @@ export default function MetricsPage() {
               </div>
               <div className="text-3xl font-bold text-gray-900">
                 {typeof metric.value === 'object' 
-                  ? `${metric.value.sys}/${metric.value.dia}`
-                  : `${metric.value}${metric.unit || ''}`}
+                  ? `${(metric.value as any).sys}/${(metric.value as any).dia}`
+                  : (
+                     <>
+                       {metric.value}
+                       {metric.unit && <span className="text-sm font-normal ml-1">{metric.unit}</span>}
+                     </>
+                   )
+                }
               </div>
               <div className="text-sm text-gray-500 mt-1">
                 Last updated: {new Date(metric.timestamp).toLocaleTimeString()}

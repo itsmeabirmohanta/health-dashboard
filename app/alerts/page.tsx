@@ -32,12 +32,10 @@ export default function AlertsPage() {
   
   const { 
     currentMetrics,
-    syncMetrics,
-    isLoading
+    syncMetrics
   } = useHealthStore(state => ({
     currentMetrics: state.currentMetrics,
-    syncMetrics: state.syncMetrics,
-    isLoading: state.isLoading
+    syncMetrics: state.syncMetrics
   }));
 
   // Generate mock alerts

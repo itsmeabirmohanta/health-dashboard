@@ -51,18 +51,6 @@ export function Sidebar({ className }: SidebarProps) {
       isNew: true
     },
     {
-      name: "Doctor Mode",
-      href: "/doctor",
-      icon: Users,
-      isNew: true
-    },
-    {
-      name: "Guardian Mode",
-      href: "/guardian",
-      icon: UserCheck,
-      isNew: true
-    },
-    {
       name: "Analytics",
       href: "/analytics",
       icon: AreaChart,
@@ -172,14 +160,14 @@ export function Sidebar({ className }: SidebarProps) {
                       </div>
                     </li>
                   )}
-                  {index === 5 && !collapsed && (
+                  {index === 3 && !collapsed && (
                     <li className="px-3 py-2">
                       <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         Analysis & Data
                       </div>
                     </li>
                   )}
-                  {index === 9 && !collapsed && (
+                  {index === 7 && !collapsed && (
                     <li className="px-3 py-2">
                       <div className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         System

@@ -47,11 +47,20 @@ export function MetricsChart({
       const timestamp = parseISO(point.timestamp);
       return {
         time: format(timestamp, timeFormat),
-        date: format(timestamp, "MMM dd"),
+        fullDate: format(timestamp, "MMM dd"),
         ...point
       };
     });
   }, [data, timeFormat]);
+
+  const formatXAxis = (tickItem: string): string => {
+    // For longer time ranges, show the full date
+    if (timeFormat.includes("MMM") || timeFormat === "EEE") {
+      return tickItem;
+    }
+    // For 24h view, we can show fewer ticks with time only
+    return tickItem;
+  };
 
   return (
     <div style={{ width: "100%", height }}>
@@ -65,20 +74,24 @@ export function MetricsChart({
               </linearGradient>
             ))}
           </defs>
-          <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
+          <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
           <XAxis 
-            dataKey="time" 
+            dataKey={timeFormat.includes("MMM") ? "fullDate" : "time"} 
             stroke="#888" 
-            fontSize={12} 
+            fontSize={10}
             tickLine={false}
             axisLine={false}
+            tickFormatter={formatXAxis}
+            padding={{ left: 10, right: 10 }}
+            minTickGap={15}
           />
           <YAxis 
             stroke="#888" 
-            fontSize={12}
+            fontSize={10}
             tickLine={false}
             axisLine={false}
             tickFormatter={(value) => `${value}`}
+            width={30}
           />
           <Tooltip 
             contentStyle={{ 
@@ -88,7 +101,7 @@ export function MetricsChart({
               boxShadow: "0 4px 12px rgba(0,0,0,0.1)" 
             }} 
             formatter={(value, name) => [`${value}`, name]}
-            labelFormatter={(label) => `Time: ${label}`}
+            labelFormatter={(label) => timeFormat.includes("MMM") ? `${label}` : `Time: ${label}`}
           />
           {showLegend && <Legend />}
           {metrics.map(metric => (

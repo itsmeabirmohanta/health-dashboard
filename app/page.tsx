@@ -242,33 +242,6 @@ export default function DashboardPage() {
                 <BarChart className="w-5 h-5 text-blue-500" />
                 Health Metrics
               </h2>
-              
-              <div className="flex bg-gray-100 rounded-lg overflow-hidden">
-                <button 
-                  onClick={() => handleTimeRangeChange('24h')}
-                  className={`px-3 py-1 text-sm ${selectedTimeframe === '24h' ? 'bg-red-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
-                >
-                  24h
-                </button>
-                <button 
-                  onClick={() => handleTimeRangeChange('7d')}
-                  className={`px-3 py-1 text-sm ${selectedTimeframe === '7d' ? 'bg-red-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
-                >
-                  7d
-                </button>
-                <button 
-                  onClick={() => handleTimeRangeChange('30d')}
-                  className={`px-3 py-1 text-sm ${selectedTimeframe === '30d' ? 'bg-red-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
-                >
-                  30d
-                </button>
-                <button 
-                  onClick={() => handleTimeRangeChange('90d')}
-                  className={`px-3 py-1 text-sm ${selectedTimeframe === '90d' ? 'bg-red-500 text-white' : 'text-gray-700 hover:bg-gray-200'}`}
-                >
-                  90d
-                </button>
-              </div>
             </div>
             
             {historicalData.length > 0 ? (
@@ -277,7 +250,7 @@ export default function DashboardPage() {
                   historicalData={historicalData}
                   title=""
                   defaultMetrics={["heartRate", "bloodOxygen"]}
-                  selectedTimeRange={selectedTimeRange}
+                  selectedTimeRange={selectedTimeframe}
                   onTimeRangeChange={handleTimeRangeChange}
                 />
               </div>

@@ -78,17 +78,17 @@ export function HealthTrendCard({
   };
 
   return (
-    <div className="glass rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div className="rounded-xl">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-        <div className="flex space-x-1 bg-white/50 rounded-lg p-1">
+        {title && <h2 className="text-lg font-semibold text-gray-900">{title}</h2>}
+        <div className="flex space-x-1 bg-gray-100 rounded-lg p-1 shadow-sm">
           {timeRanges.map(range => (
             <button
               key={range.id}
               onClick={() => onTimeRangeChange(range.id)}
-              className={`px-3 py-1 text-xs rounded-md transition-all ${
+              className={`px-3 py-1 text-sm rounded-md transition-all ${
                 selectedTimeRange === range.id 
-                  ? 'bg-gradient-to-br from-red-500 to-red-600 text-white' 
+                  ? 'bg-gradient-to-br from-red-500 to-red-600 text-white shadow-sm' 
                   : 'text-gray-600 hover:bg-white/70'
               }`}
             >
