@@ -3,77 +3,76 @@
 import React from "react";
 import { useHealthStore } from "@/store/useHealthStore";
 import { cn } from "@/lib/utils";
-import { Bell, Search, Plus, User, Heart } from "lucide-react";
+import { Bell, Search, Plus, User, Heart, Settings } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
 interface HeaderProps {
   className?: string;
+  onAddDevice?: () => void;
+  username?: string;
 }
 
-export function Header({ className }: HeaderProps) {
+export function Header({ className, onAddDevice, username = "Demo User" }: HeaderProps) {
   // Hardcoded value instead of using the store
   const unreadAlertCount = 3;
 
   return (
     <header className={cn(
-      "glass sticky top-0 z-30 px-6 h-16 flex items-center justify-between border-b border-white/20 shadow-sm",
+      "sticky top-0 z-30 px-6 py-4 mb-6 flex items-center justify-between",
+      "bg-white/80 dark:bg-gray-800/80 backdrop-blur-md",
+      "border-b border-gray-100/50 dark:border-gray-700/50",
+      "transition-all duration-200",
       className
     )}>
-      {/* Left: Logo & Title (hidden on lg screens as it's in the sidebar) */}
-      <div className="flex items-center gap-8 lg:hidden">
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-all">
-            <Heart className="w-5 h-5 text-white" />
+      {/* Left: Logo & Title */}
+      <div className="flex items-center gap-4 lg:gap-6">
+        <Link href="/" className="flex items-center gap-2.5 group">
+          <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
+            <Heart className="w-6 h-6 text-white" />
           </div>
-          <span className="text-xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-600">FitPulse</span>
+          <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-600">Fit</span>
+            <span className="text-gray-800 dark:text-gray-100">Pulse</span>
+          </span>
         </Link>
-      </div>
-
-      {/* Center: Search */}
-      <div className="flex-1 max-w-xl mx-8">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-            <Search className="w-4 h-4 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            className="input-search pl-10"
-            placeholder="Search anything here..."
-          />
+        
+        {/* Dashboard Title - Moved from page */}
+        <div className="hidden md:block border-l border-gray-200/50 dark:border-gray-700/50 pl-4 ml-2">
+          <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Health Dashboard</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Welcome back, {username}!</p>
         </div>
       </div>
-
+      
       {/* Right: Actions */}
-      <div className="flex items-center gap-3">
-        <button className="btn-primary flex items-center gap-2 shadow-md hover:shadow-lg">
-          <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">Add</span>
+      <div className="flex items-center gap-4">
+        <button
+          className="flex items-center gap-2 py-2 px-4 bg-blue-500 hover:bg-blue-600 transition-colors text-white rounded-lg shadow-sm hover:shadow"
+          onClick={onAddDevice}
+        >
+          <Plus className="w-5 h-5" />
+          <span className="hidden sm:inline font-medium">Add Device</span>
         </button>
         
-        {/* Notifications */}
+        <button className="p-2 rounded-lg bg-white/80 dark:bg-gray-700/80 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow-sm">
+          <Settings className="w-5 h-5" />
+        </button>
+        
         <Link
           href="/alerts"
-          className="relative p-2 rounded-xl bg-white/50 border border-white/20 text-gray-600 hover:bg-white/70 transition-colors"
+          className="relative p-2 rounded-lg bg-white/80 dark:bg-gray-700/80 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow-sm"
         >
           <Bell className="w-5 h-5" />
           {unreadAlertCount > 0 && (
-            <span className="absolute top-0 right-0 w-4 h-4 bg-gradient-to-br from-red-500 to-red-600 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm">
               {unreadAlertCount > 9 ? '9+' : unreadAlertCount}
             </span>
           )}
         </Link>
-
-        {/* User Menu */}
-        <button className="flex items-center gap-3 p-1.5 rounded-xl bg-white/50 border border-white/20 hover:bg-white/70 transition-colors">
-          <div className="relative w-8 h-8 rounded-xl overflow-hidden shadow-sm">
-            <Image
-              src="/images/avatar.svg"
-              alt="User"
-              width={32}
-              height={32}
-              className="w-full h-full object-cover"
-            />
+        
+        <button className="flex items-center gap-3 p-1 rounded-full overflow-hidden bg-red-500 hover:bg-red-600 transition-colors shadow-sm">
+          <div className="relative w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-white font-semibold">
+            DU
           </div>
         </button>
       </div>

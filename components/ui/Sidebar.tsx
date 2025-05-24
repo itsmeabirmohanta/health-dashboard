@@ -28,7 +28,8 @@ import {
   ShieldCheck,
   FileText,
   Calendar,
-  MessageSquareText
+  MessageSquareText,
+  Plus
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useTheme } from "next-themes";
@@ -45,6 +46,8 @@ interface NavItem {
 interface SidebarProps {
   collapsed: boolean;
   toggleSidebar: () => void;
+  onAddDevice?: () => void;
+  username?: string;
 }
 
 const navItems: NavItem[] = [
@@ -61,10 +64,12 @@ const navItems: NavItem[] = [
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
 
-export function Sidebar({ collapsed, toggleSidebar }: SidebarProps) {
+export function Sidebar({ collapsed, toggleSidebar, onAddDevice, username = "Demo User" }: SidebarProps) {
   const pathname = usePathname();
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  // Hardcoded value for notification count
+  const unreadAlertCount = 3;
 
   useEffect(() => {
     setMounted(true);
@@ -81,32 +86,97 @@ export function Sidebar({ collapsed, toggleSidebar }: SidebarProps) {
     <TooltipProvider delayDuration={0}>
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 ease-in-out group",
+          "fixed inset-y-0 left-0 z-50 h-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-r border-gray-200/50 dark:border-gray-700/50 flex flex-col transition-all duration-300 ease-in-out group",
           collapsed ? "w-[4.5rem]" : "w-64"
         )}
       >
+        {/* Logo & Brand Section - Updated to match Header styling */}
         <div
           className={cn(
-            "flex items-center border-b border-gray-200 dark:border-gray-700",
-            collapsed ? "h-[60px] justify-center" : "h-[60px] px-6 justify-between"
+            "flex items-center border-b border-gray-200/50 dark:border-gray-700/50 py-4",
+            collapsed ? "h-20 justify-center" : "h-20 px-4 justify-between"
           )}
         >
           {!collapsed && (
-            <Link href="/" className="flex items-center gap-2">
-              <Heart className="w-7 h-7 text-red-500" />
-              <span className="text-xl font-semibold text-gray-800 dark:text-white">
-                HealthIO
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
+                <Heart className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-red-500 to-red-600">Fit</span>
+                <span className="text-gray-800 dark:text-gray-100">Pulse</span>
               </span>
             </Link>
           )}
           {collapsed && (
-             <Link href="/" className="flex items-center justify-center">
-                <Heart className="w-7 h-7 text-red-500" />
+            <Link href="/" className="flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-sm hover:shadow-md transition-all">
+                <Heart className="w-6 h-6 text-white" />
+              </div>
             </Link>
           )}
+          {!collapsed && (
+            <button
+              onClick={toggleSidebar}
+              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
         </div>
+        
+        {/* User Profile Section */}
+        {!collapsed && (
+          <div className="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-red-500 flex items-center justify-center text-white font-semibold">
+                  DU
+                </div>
+              </div>
+              <div className="ml-3 flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">{username}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 truncate">Health Dashboard</p>
+              </div>
+            </div>
+          </div>
+        )}
 
-        <nav className="flex-1 overflow-y-auto py-4 space-y-1">
+        {/* Action Buttons - Only visible when not collapsed */}
+        {!collapsed && (
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
+            {onAddDevice && (
+              <button
+                onClick={onAddDevice}
+                className="flex items-center justify-center gap-2 py-1.5 px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium flex-1 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add Device</span>
+              </button>
+            )}
+            
+            <Link
+              href="/alerts"
+              className="relative p-2 rounded-lg bg-white/80 dark:bg-gray-700/80 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow-sm flex-shrink-0"
+            >
+              <Bell className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+              {unreadAlertCount > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm">
+                  {unreadAlertCount}
+                </span>
+              )}
+            </Link>
+            
+            <Link
+              href="/settings"
+              className="p-2 rounded-lg bg-white/80 dark:bg-gray-700/80 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow-sm flex-shrink-0"
+            >
+              <Settings className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+            </Link>
+          </div>
+        )}
+
+        <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-2">
           {navItems.map((item) => {
             if (item.isSectionTitle) {
               return collapsed ? (
@@ -130,11 +200,11 @@ export function Sidebar({ collapsed, toggleSidebar }: SidebarProps) {
                   <Link
                     href={item.href}
                     className={cn(
-                      "flex items-center mx-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150",
+                      "flex items-center rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-150",
                       isActive
-                        ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-medium shadow-sm border-l-4 border-red-500 dark:border-red-500"
+                        ? "bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-medium shadow-sm border-l-2 border-red-500 dark:border-red-500"
                         : "hover:text-gray-900 dark:hover:text-white",
-                      collapsed ? "justify-center h-11 w-11" : "px-3 py-2.5 h-11"
+                      collapsed ? "justify-center h-10 w-10 mx-auto" : "px-4 py-2 mx-1"
                     )}
                   >
                     <item.icon
@@ -164,6 +234,7 @@ export function Sidebar({ collapsed, toggleSidebar }: SidebarProps) {
                 {collapsed && (
                   <TooltipContent side="right" className="bg-gray-800 text-white text-xs px-2 py-1 rounded">
                     {item.label}
+                    {item.badge && <span className="ml-1 bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{item.badge}</span>}
                   </TooltipContent>
                 )}
               </Tooltip>
@@ -171,23 +242,30 @@ export function Sidebar({ collapsed, toggleSidebar }: SidebarProps) {
           })}
         </nav>
 
-        {/* Collapse Button */}
-        <div className="mt-auto border-t border-gray-200 dark:border-gray-700 p-2">
-          <button
-            onClick={toggleSidebar} // Use prop
-            className={cn(
-              "w-full flex items-center justify-center h-10 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors",
-              collapsed ? "px-2" : "px-3"
-            )}
-          >
-            {collapsed ? (
-              <ChevronRight className="w-5 h-5" />
-            ) : (
+        {/* Collapse Button - Only when sidebar is expanded */}
+        {!collapsed && (
+          <div className="mt-auto border-t border-gray-200/50 dark:border-gray-700/50 p-2">
+            <button
+              onClick={toggleSidebar}
+              className="w-full flex items-center justify-center py-2 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
               <ChevronLeft className="w-5 h-5 mr-2" />
-            )}
-            {!collapsed && <span className="text-sm">Collapse</span>}
-          </button>
-        </div>
+              <span className="text-sm">Collapse Sidebar</span>
+            </button>
+          </div>
+        )}
+        
+        {/* Collapse button when sidebar is collapsed */}
+        {collapsed && (
+          <div className="mt-auto border-t border-gray-200/50 dark:border-gray-700/50 p-2">
+            <button
+              onClick={toggleSidebar}
+              className="w-full flex items-center justify-center h-10 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        )}
       </aside>
     </TooltipProvider>
   );
