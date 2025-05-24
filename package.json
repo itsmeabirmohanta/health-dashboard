@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "netlify-deploy": "npm run build && npx @netlify/build"
   },
   "dependencies": {
     "@radix-ui/react-tooltip": "^1.2.7",
@@ -27,6 +28,7 @@
     "zustand": "^4.5.7"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.11.2",
     "@types/node": "^20.11.0",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",

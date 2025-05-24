@@ -1,0 +1,11 @@
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "18"
+  NPM_VERSION = "9"
+
+# Cache the Next.js build properly
+[[plugins]]
+  package = "@netlify/plugin-nextjs" 

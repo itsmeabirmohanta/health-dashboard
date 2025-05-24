@@ -2,12 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  output: 'standalone',
   images: {
     domains: [],
     remotePatterns: [],
-    unoptimized: process.env.NODE_ENV === 'development',
-  }
+    unoptimized: true,
+  },
+  // Ensure trailing slashes are properly handled
+  trailingSlash: false,
 };
 
 module.exports = nextConfig; 
