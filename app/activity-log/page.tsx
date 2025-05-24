@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState, useMemo } from 'react';
-import { ListChecks, Users, Filter, Search, Calendar, ArrowDownUp, Clock, Edit3, Trash2, TrendingUp, Zap, Flame, Plus } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ListChecks, Users, Filter, Search, Calendar, ArrowDownUp, Clock, Edit3, Trash2, TrendingUp, Zap, Flame, Plus, Activity, Footprints, Timer, ChevronDown } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 
 // Mock data - replace with actual data fetching and state management
 interface ActivityLogEntry {
   id: string;
-  type: 'workout' | 'run' | 'walk' | 'swim' | 'cycle' | 'sport' | 'other';
+  type: 'workout' | 'run' | 'walk' | 'swim' | 'cycle' | 'sport' | 'other' | 'sleep' | 'meditation';
   title: string;
   date: string; // ISO string
   duration?: string; // e.g., "45 min", "1.5 hours"
@@ -15,6 +15,12 @@ interface ActivityLogEntry {
   intensity?: 'low' | 'moderate' | 'high';
   caloriesBurned?: number;
   notes?: string;
+  metrics?: {
+    [key: string]: {
+      value: number;
+      unit: string;
+    }
+  };
 }
 
 const mockActivityLog: ActivityLogEntry[] = [
@@ -27,7 +33,12 @@ const mockActivityLog: ActivityLogEntry[] = [
     distance: '5 km',
     intensity: 'moderate',
     caloriesBurned: 300,
-    notes: 'Felt good, consistent pace.'
+    notes: 'Felt good, consistent pace.',
+    metrics: {
+      steps: { value: 4320, unit: 'steps' },
+      distance: { value: 3.2, unit: 'km' },
+      calories: { value: 145, unit: 'kcal' }
+    }
   },
   {
     id: 'log2',
@@ -37,7 +48,11 @@ const mockActivityLog: ActivityLogEntry[] = [
     duration: '1 hour',
     intensity: 'high',
     caloriesBurned: 450,
-    notes: 'Focused on compound lifts.'
+    notes: 'Focused on compound lifts.',
+    metrics: {
+      calories: { value: 320, unit: 'kcal' },
+      heartRate: { value: 135, unit: 'bpm' }
+    }
   },
   {
     id: 'log3',
@@ -48,6 +63,11 @@ const mockActivityLog: ActivityLogEntry[] = [
     distance: '3 km',
     intensity: 'low',
     caloriesBurned: 150,
+    metrics: {
+      steps: { value: 4320, unit: 'steps' },
+      distance: { value: 3.2, unit: 'km' },
+      calories: { value: 145, unit: 'kcal' }
+    }
   },
    {
     id: 'log4',
@@ -58,7 +78,12 @@ const mockActivityLog: ActivityLogEntry[] = [
     distance: '30 km',
     intensity: 'moderate',
     caloriesBurned: 700,
-    notes: 'Scenic route by the lake.'
+    notes: 'Scenic route by the lake.',
+    metrics: {
+      steps: { value: 4320, unit: 'steps' },
+      distance: { value: 3.2, unit: 'km' },
+      calories: { value: 145, unit: 'kcal' }
+    }
   },
   {
     id: 'log5',
@@ -69,17 +94,45 @@ const mockActivityLog: ActivityLogEntry[] = [
     distance: '1500 m',
     intensity: 'high',
     caloriesBurned: 400,
+    metrics: {
+      steps: { value: 4320, unit: 'steps' },
+      distance: { value: 3.2, unit: 'km' },
+      calories: { value: 145, unit: 'kcal' }
+    }
+  },
+  {
+    id: 'log6',
+    type: 'sleep',
+    title: 'Night Sleep',
+    date: new Date(Date.now() - 86400000 * 24).toISOString(), // 1 day ago
+    duration: '8 hours',
+    metrics: {
+      quality: { value: 85, unit: '%' },
+      deep: { value: 120, unit: 'min' }
+    }
+  },
+  {
+    id: 'log7',
+    type: 'meditation',
+    title: 'Morning Meditation',
+    date: new Date(Date.now() - 86400000 * 24).toISOString(), // 1 day ago
+    duration: '30 min',
+    metrics: {
+      duration: { value: 30, unit: 'min' }
+    }
   }
 ];
 
 const activityTypeIcons: Record<ActivityLogEntry['type'], React.ElementType> = {
     workout: Flame,
     run: TrendingUp,
-    walk: Users, // Using Users as a placeholder for walking/steps type icon
+    walk: Footprints,
     swim: Zap, // Placeholder
     cycle: Zap, // Placeholder
     sport: Zap, // Placeholder
     other: ListChecks,
+    sleep: Clock,
+    meditation: Clock
 };
 
 export default function ActivityLogPage() {
@@ -92,6 +145,57 @@ export default function ActivityLogPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingActivity, setEditingActivity] = useState<ActivityLogEntry | null>(null);
   const [formData, setFormData] = useState<Partial<ActivityLogEntry>>({});
+
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    
+    // Mock activity data
+    const mockActivities: ActivityLogEntry[] = [
+      {
+        id: '1',
+        type: 'walk',
+        title: 'Morning Walk',
+        date: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+        duration: '30 min',
+        distance: '3 km',
+        intensity: 'moderate',
+        caloriesBurned: 145,
+        metrics: {
+          steps: { value: 4320, unit: 'steps' },
+          distance: { value: 3.2, unit: 'km' },
+          calories: { value: 145, unit: 'kcal' }
+        }
+      },
+      {
+        id: '2',
+        type: 'workout',
+        title: 'Strength Training',
+        date: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+        duration: '45 min',
+        intensity: 'high',
+        caloriesBurned: 320,
+        metrics: {
+          calories: { value: 320, unit: 'kcal' },
+          heartRate: { value: 135, unit: 'bpm' }
+        }
+      },
+      {
+        id: '3',
+        type: 'sleep',
+        title: 'Night Sleep',
+        date: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+        duration: '8 hours',
+        metrics: {
+          quality: { value: 85, unit: '%' },
+          deep: { value: 120, unit: 'min' }
+        }
+      },
+    ];
+    
+    setActivities(mockActivities);
+  }, []);
 
   const filteredAndSortedActivities = useMemo(() => {
     let result = activities;
@@ -158,6 +262,8 @@ export default function ActivityLogPage() {
   const uniqueActivityTypes = useMemo(() => 
     ['all', ...Array.from(new Set(mockActivityLog.map(act => act.type)))]
   , []);
+
+  if (!mounted) return null;
 
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">

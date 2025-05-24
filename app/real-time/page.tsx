@@ -1,144 +1,94 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Card } from "@/components/ui/card";
-
-// Simulated real-time data generation
-function generateRandomData(current: number, variance: number): number {
-  return Math.max(0, current + (Math.random() - 0.5) * variance);
-}
+import { HeartRateMonitor } from '@/components/ui/HeartRateMonitor';
+import { Activity, Droplets } from 'lucide-react';
 
 export default function RealTimePage() {
-  const [heartRate, setHeartRate] = useState(75);
-  const [bloodOxygen, setBloodOxygen] = useState(98);
-  const [activity, setActivity] = useState({ type: "Walking", duration: 15 });
-  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [heartRate, setHeartRate] = useState(72);
+  const [spo2, setSpo2] = useState(98);
+  const [mounted, setMounted] = useState(false);
 
-  // Simulate real-time updates
   useEffect(() => {
-    const interval = setInterval(() => {
-      setHeartRate(prev => Math.round(generateRandomData(prev, 4)));
-      setBloodOxygen(prev => Math.min(100, Math.round(generateRandomData(prev, 1))));
-      setActivity(prev => ({
-        ...prev,
-        duration: prev.duration + 1/60
-      }));
-      setLastUpdate(new Date());
-    }, 1000);
+    setMounted(true);
 
+    // Simulate real-time data changes
+    const interval = setInterval(() => {
+      setHeartRate(prev => {
+        const change = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+        return Math.max(60, Math.min(100, prev + change));
+      });
+      
+      setSpo2(prev => {
+        const change = Math.random() > 0.7 ? (Math.random() > 0.5 ? 1 : -1) : 0;
+        return Math.max(95, Math.min(100, prev + change));
+      });
+    }, 2000);
+    
     return () => clearInterval(interval);
   }, []);
 
+  if (!mounted) return null;
+
   return (
-    <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Real-Time Monitoring</h1>
+    <div className="space-y-6">
+      <section className="space-y-4">
+        <h1 className="text-3xl font-bold">Real-time Monitoring</h1>
+        <p className="text-slate-500 dark:text-slate-400">
+          View your real-time health metrics
+        </p>
+      </section>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* Heart Rate Monitor */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Heart Rate</h2>
-            <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full text-sm">
-              Live
-            </span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm">
+          <h2 className="text-xl font-semibold mb-4">Heart Rate</h2>
+          <div className="flex justify-center py-4">
+            <HeartRateMonitor 
+              value={heartRate}
+              showAnimation={true}
+              size="lg"
+            />
           </div>
-          <div className="text-4xl font-bold text-center my-8">
-            {heartRate} <span className="text-lg font-normal text-gray-500">BPM</span>
-          </div>
-          <div className="h-32 bg-gray-100 dark:bg-gray-700 rounded-lg mb-4">
-            <div className="flex items-center justify-center h-full text-gray-500">
-              Live Heart Rate Graph
-            </div>
-          </div>
-          <div className="text-sm text-gray-500">
-            Last updated: {lastUpdate.toLocaleTimeString()}
-          </div>
-        </Card>
-
-        {/* Blood Oxygen */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Blood Oxygen</h2>
-            <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full text-sm">
-              Live
-            </span>
-          </div>
-          <div className="text-4xl font-bold text-center my-8">
-            {bloodOxygen}<span className="text-lg font-normal text-gray-500">%</span>
-          </div>
-          <div className="h-32 bg-gray-100 dark:bg-gray-700 rounded-lg mb-4">
-            <div className="flex items-center justify-center h-full text-gray-500">
-              Live SpO2 Graph
-            </div>
-          </div>
-          <div className="text-sm text-gray-500">
-            Last updated: {lastUpdate.toLocaleTimeString()}
-          </div>
-        </Card>
-
-        {/* Activity Status */}
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Activity Status</h2>
-            <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 rounded-full text-sm">
-              Live
-            </span>
-          </div>
-          <div className="text-center my-8">
-            <div className="text-2xl font-semibold">{activity.type}</div>
-            <div className="text-gray-500 mt-2">
-              Duration: {Math.floor(activity.duration)} minutes
-            </div>
-          </div>
-          <div className="h-32 bg-gray-100 dark:bg-gray-700 rounded-lg mb-4">
-            <div className="flex items-center justify-center h-full text-gray-500">
-              Live Activity Graph
-            </div>
-          </div>
-          <div className="text-sm text-gray-500">
-            Last updated: {lastUpdate.toLocaleTimeString()}
-          </div>
-        </Card>
-      </div>
-
-      {/* Alert Panel */}
-      <Card className="mt-8 p-6">
-        <h2 className="text-xl font-semibold mb-4">Real-Time Alerts</h2>
-        <div className="space-y-4">
-          {heartRate > 90 && (
-            <div className="flex items-center p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-              <div className="flex-shrink-0 w-2 h-2 bg-yellow-400 rounded-full mr-3"></div>
-              <div>
-                <h3 className="font-medium text-yellow-700 dark:text-yellow-300">
-                  Elevated Heart Rate
-                </h3>
-                <p className="mt-1 text-sm text-yellow-600 dark:text-yellow-400">
-                  Heart rate above normal range. Consider taking a break.
-                </p>
-              </div>
-            </div>
-          )}
-          {bloodOxygen < 95 && (
-            <div className="flex items-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-              <div className="flex-shrink-0 w-2 h-2 bg-red-400 rounded-full mr-3"></div>
-              <div>
-                <h3 className="font-medium text-red-700 dark:text-red-300">
-                  Low Blood Oxygen
-                </h3>
-                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
-                  Blood oxygen level below normal range.
-                </p>
-              </div>
-            </div>
-          )}
         </div>
-      </Card>
-
-      {/* Connection Status */}
-      <div className="mt-6 flex items-center text-sm text-gray-500">
-        <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-        Connected to Device
-        <span className="ml-4">Signal Strength: Excellent</span>
+        
+        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm">
+          <h2 className="text-xl font-semibold mb-4">Blood Oxygen</h2>
+          <div className="flex justify-center items-center py-4">
+            <div className="relative flex flex-col items-center p-6">
+              <div className="bg-blue-100 dark:bg-blue-900/30 p-6 rounded-full mb-4">
+                <Droplets className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+                {spo2}%
+              </div>
+              <div className="text-sm text-slate-500 mt-2">
+                {spo2 >= 98 ? 'Optimal' : spo2 >= 95 ? 'Normal' : 'Low'}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm md:col-span-2">
+          <h2 className="text-xl font-semibold mb-4">Activity Level</h2>
+          <div className="flex items-center mb-4">
+            <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-full mr-4">
+              <Activity className="h-6 w-6 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <div className="text-sm text-slate-500 dark:text-slate-400">Current</div>
+              <div className="text-2xl font-bold">Moderate</div>
+            </div>
+          </div>
+          <div className="w-full h-3 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div className="h-full bg-green-500 rounded-full" style={{ width: '45%' }} />
+          </div>
+          <div className="flex justify-between mt-2 text-xs text-slate-500">
+            <span>Low</span>
+            <span>Moderate</span>
+            <span>High</span>
+            <span>Intense</span>
+          </div>
+        </div>
       </div>
     </div>
   );

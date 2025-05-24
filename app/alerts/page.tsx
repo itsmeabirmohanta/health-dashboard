@@ -10,7 +10,10 @@ import {
   CheckCircle,
   XCircle,
   Settings,
-  Info
+  Info,
+  AlertCircle,
+  Check,
+  ChevronRight
 } from "lucide-react";
 
 interface HealthAlert {
@@ -26,9 +29,19 @@ interface HealthAlert {
   icon: React.ElementType;
 }
 
+interface Alert {
+  id: string;
+  title: string;
+  message: string;
+  type: 'warning' | 'info' | 'danger';
+  timestamp: Date;
+  read: boolean;
+}
+
 export default function AlertsPage() {
   const [activeFilter, setActiveFilter] = useState<"all" | "unread" | "critical" | "warning" | "info">("all");
   const [alerts, setAlerts] = useState<HealthAlert[]>([]);
+  const [mounted, setMounted] = useState(false);
   
   const { 
     currentMetrics,
@@ -106,6 +119,10 @@ export default function AlertsPage() {
     syncMetrics();
   }, [syncMetrics]);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Filter alerts based on active filter
   const getFilteredAlerts = () => {
     if (activeFilter === "all") return alerts;
@@ -165,169 +182,105 @@ export default function AlertsPage() {
     return date.toLocaleString();
   };
 
+  if (!mounted) return null;
+
+  const unreadCount = alerts.filter(alert => !alert.isRead).length;
+
   return (
-    <>
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Health Alerts</h1>
-          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            View and manage your health notifications and alerts
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold">Alerts</h1>
+          <p className="text-slate-500 dark:text-slate-400">
+            View and manage your health alerts
           </p>
         </div>
         
-        <div className="flex gap-2">
-          <button 
-            onClick={markAllAsRead}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-gray-800 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
-          >
-            <CheckCircle className="w-4 h-4" />
-            Mark all read
-          </button>
-          
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white dark:bg-gray-800 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700">
-            <Settings className="w-4 h-4" />
-            Alert Settings
-          </button>
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-slate-500">
+            {unreadCount} unread
+          </span>
+          {unreadCount > 0 && (
+            <button 
+              onClick={markAllAsRead}
+              className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 flex items-center"
+            >
+              <Check className="h-4 w-4 mr-1" />
+              Mark all as read
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Alert filters */}
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-        <button
-          onClick={() => setActiveFilter("all")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap ${
-            activeFilter === "all"
-              ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-          }`}
-        >
-          <Bell className="w-4 h-4" />
-          All Alerts
-        </button>
-        
-        <button
-          onClick={() => setActiveFilter("unread")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap ${
-            activeFilter === "unread"
-              ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
-              : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-          }`}
-        >
-          <Bell className="w-4 h-4" />
-          Unread
-          {alerts.filter(a => !a.isRead).length > 0 && (
-            <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-semibold text-white bg-red-500 rounded-full">
-              {alerts.filter(a => !a.isRead).length}
-            </span>
-          )}
-        </button>
-        
-        <button
-          onClick={() => setActiveFilter("critical")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap ${
-            activeFilter === "critical"
-              ? "bg-red-600 text-white dark:bg-red-500 dark:text-white"
-              : "bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-900/20 dark:text-red-300 dark:hover:bg-red-900/40"
-          }`}
-        >
-          <AlertTriangle className="w-4 h-4" />
-          Critical
-        </button>
-        
-        <button
-          onClick={() => setActiveFilter("warning")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap ${
-            activeFilter === "warning"
-              ? "bg-amber-600 text-white dark:bg-amber-500 dark:text-white"
-              : "bg-amber-50 text-amber-700 hover:bg-amber-100 dark:bg-amber-900/20 dark:text-amber-300 dark:hover:bg-amber-900/40"
-          }`}
-        >
-          <AlertTriangle className="w-4 h-4" />
-          Warning
-        </button>
-        
-        <button
-          onClick={() => setActiveFilter("info")}
-          className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium whitespace-nowrap ${
-            activeFilter === "info"
-              ? "bg-blue-600 text-white dark:bg-blue-500 dark:text-white"
-              : "bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/20 dark:text-blue-300 dark:hover:bg-blue-900/40"
-          }`}
-        >
-          <Info className="w-4 h-4" />
-          Info
-        </button>
-      </div>
-
-      {/* Alert List */}
-      {filteredAlerts.length > 0 ? (
-        <div className="space-y-4">
-          {filteredAlerts.map(alert => {
-            const style = getAlertStyle(alert.type);
-            return (
-              <div 
-                key={alert.id} 
-                className={`border rounded-lg p-4 ${style.bg} ${style.border} ${!alert.isRead ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-blue-400' : ''}`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start space-x-3">
-                    <div className={`p-2 rounded-full ${style.bg}`}>
-                      <alert.icon className={`w-5 h-5 ${style.icon}`} />
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm overflow-hidden">
+        {alerts.length === 0 ? (
+          <div className="p-8 text-center">
+            <div className="mx-auto w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mb-4">
+              <Bell className="h-8 w-8 text-slate-400" />
+            </div>
+            <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">
+              No alerts
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400">
+              You don't have any alerts at the moment
+            </p>
+          </div>
+        ) : (
+          <div className="divide-y divide-slate-100 dark:divide-slate-700">
+            {alerts.map((alert) => {
+              const colors = getAlertStyle(alert.type);
+              return (
+                <div 
+                  key={alert.id} 
+                  className={`p-4 md:px-6 flex items-start ${!alert.isRead ? 'bg-blue-50/50 dark:bg-blue-900/10' : ''}`}
+                >
+                  <div className={`flex-shrink-0 w-10 h-10 ${colors.bg} rounded-full flex items-center justify-center mr-4`}>
+                    <AlertCircle className={`h-5 w-5 ${colors.icon}`} />
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between">
+                      <h3 className={`font-medium ${colors.text} ${!alert.isRead ? 'font-semibold' : ''}`}>
+                        {alert.metric}
+                      </h3>
+                      <span className="text-xs text-slate-500 ml-2">
+                        {formatTime(alert.timestamp)}
+                      </span>
                     </div>
-                    <div>
-                      <div className="flex items-center space-x-2">
-                        <h3 className={`font-semibold ${style.text}`}>{alert.metric}</h3>
-                        <span className="px-2 py-0.5 text-xs font-medium rounded-full uppercase bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
-                          {alert.type}
-                        </span>
-                        {!alert.isRead && (
-                          <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-                            New
-                          </span>
+                    
+                    <p className="text-slate-600 dark:text-slate-300 text-sm mt-1">
+                      {alert.message}
+                    </p>
+                    
+                    <div className="mt-2 flex items-center">
+                      <button 
+                        className="text-sm text-blue-600 hover:text-blue-500 dark:text-blue-400 mr-4 flex items-center"
+                        onClick={() => markAsRead(alert.id)}
+                      >
+                        {!alert.isRead ? (
+                          <>
+                            <Check className="h-3.5 w-3.5 mr-1" />
+                            Mark as read
+                          </>
+                        ) : (
+                          'View details'
                         )}
-                      </div>
-                      <p className="mt-1 text-gray-800 dark:text-gray-200">{alert.message}</p>
-                      <div className="mt-2 text-xs text-gray-500 dark:text-gray-400 space-y-1">
-                        <div>Recorded value: <span className="font-semibold">{alert.value}{alert.unit}</span></div>
-                        <div>Threshold: <span className="font-semibold">{alert.threshold}{alert.unit}</span></div>
-                        <div>Time: <span className="font-semibold">{formatTime(alert.timestamp)}</span></div>
-                      </div>
+                      </button>
+                      <span className="text-sm text-slate-500">
+                        {formatTime(alert.timestamp)}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    {!alert.isRead && (
-                      <button 
-                        onClick={() => markAsRead(alert.id)}
-                        className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-                      >
-                        <CheckCircle className="w-5 h-5" />
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => deleteAlert(alert.id)}
-                      className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 dark:text-gray-400"
-                    >
-                      <XCircle className="w-5 h-5" />
-                    </button>
+                  
+                  <div className="flex-shrink-0 ml-4">
+                    <ChevronRight className="h-5 w-5 text-slate-400" />
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="bg-white dark:bg-gray-800 p-12 rounded-lg border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
-          <div className="p-4 bg-gray-100 dark:bg-gray-700 rounded-full">
-            <Bell className="w-8 h-8 text-gray-500 dark:text-gray-400" />
+              );
+            })}
           </div>
-          <h3 className="mt-4 text-lg font-medium text-gray-900 dark:text-white">No alerts found</h3>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-center max-w-sm">
-            {activeFilter === "all" 
-              ? "You don't have any health alerts at the moment." 
-              : `No ${activeFilter} alerts found. Try changing your filter.`}
-          </p>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </div>
   );
 } 

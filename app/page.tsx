@@ -27,7 +27,8 @@ import {
   Briefcase,
   Watch,
   Smartphone,
-  Bluetooth
+  Bluetooth,
+  BarChart3
 } from "lucide-react";
 import Link from "next/link";
 import { DeviceStatusCard } from "@/components/DeviceStatusCard";
@@ -104,7 +105,17 @@ const DEVICE_DATASET_MAP: Record<string, 'normalDay' | 'highActivity' | 'illness
   'galaxy-s23': 'normalDay',
 };
 
-export default function DashboardPage() {
+export default function Dashboard() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null; // Avoid rendering during SSR to prevent hydration mismatch
+  }
+
   const { 
     currentMetrics,
     syncMetrics,
@@ -274,277 +285,88 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto">
-      {isLoading && <DashboardSkeleton />}
-      
-      <div className={cn("page-transition", !isLoading ? "opacity-100" : "opacity-0 pointer-events-none")}>
-        <DeviceConnectAnimation visible={showConnectionAnimation} type={connectionAnimationType} />
-        <RadarScanModal
-          isOpen={showAddDeviceModal}
-          onClose={() => setShowAddDeviceModal(false)}
-          devices={availableDevices}
-          onConnect={handleRadarConnect}
-          connectingDeviceId={connectingDeviceId || undefined}
-        />
-        
-        {/* Quick Actions Section */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-xl shadow-sm p-4 md:p-6 mb-6 border border-gray-100/50 dark:border-gray-700/50">
-          <div className="mb-4 md:mb-6">
-            <h2 className="text-xl font-semibold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-              <Zap className="w-5 h-5 text-blue-500" strokeWidth={2.5} />
-              Quick Actions
-            </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Access your most important tools</p>
+    <div className="space-y-6">
+      <section className="space-y-4">
+        <h1 className="text-3xl font-bold">Health Dashboard</h1>
+        <p className="text-slate-500 dark:text-slate-400">
+          Monitor your health metrics and track your progress.
+        </p>
+      </section>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm">
+          <div className="flex items-center mb-4">
+            <div className="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full mr-4">
+              <Heart className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h3 className="font-medium">Heart Rate</h3>
+              <p className="text-2xl font-bold">72 BPM</p>
+            </div>
           </div>
-          
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
-            <button 
-              onClick={() => syncMetrics()}
-              className="flex flex-col items-center justify-center bg-gradient-to-b from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/20 hover:from-blue-100 hover:to-blue-200 dark:hover:from-blue-800/40 dark:hover:to-blue-700/30 rounded-lg p-4 border border-blue-100 dark:border-blue-800/50 shadow-sm hover:shadow transition-all group"
-            >
-              <div className="w-10 h-10 flex items-center justify-center bg-blue-500/10 dark:bg-blue-500/20 rounded-full mb-3 group-hover:bg-blue-500/20 dark:group-hover:bg-blue-500/30 transition-colors">
-                <RefreshCw className="w-5 h-5 text-blue-600 dark:text-blue-400 transition-transform group-hover:rotate-90" />
-              </div>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Refresh Data</span>
-            </button>
-
-            <Link href="/activity-log" passHref
-              className="flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-indigo-100 dark:from-indigo-900/30 dark:to-indigo-800/20 hover:from-indigo-100 hover:to-indigo-200 dark:hover:from-indigo-800/40 dark:hover:to-indigo-700/30 rounded-lg p-4 border border-indigo-100 dark:border-indigo-800/50 shadow-sm hover:shadow transition-all group"
-            >
-              <div className="w-10 h-10 flex items-center justify-center bg-indigo-500/10 dark:bg-indigo-500/20 rounded-full mb-3 group-hover:bg-indigo-500/20 dark:group-hover:bg-indigo-500/30 transition-colors">
-                <ClipboardList className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-              </div>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Log Activity</span>
-            </Link>
-            
-            <button 
-              onClick={handleStartWorkout}
-              className={`flex flex-col items-center justify-center rounded-lg p-4 border shadow-sm hover:shadow transition-all group ${
-                isWorkoutActive 
-                ? 'bg-gradient-to-b from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 hover:from-red-100 hover:to-red-200 dark:hover:from-red-800/40 dark:hover:to-red-700/30 border-red-200 dark:border-red-800/50'
-                : 'bg-gradient-to-b from-green-50 to-green-100 dark:from-green-900/30 dark:to-green-800/20 hover:from-green-100 hover:to-green-200 dark:hover:from-green-800/40 dark:hover:to-green-700/30 border-green-200 dark:border-green-800/50'
-              }`}
-            >
-              <div className={`w-10 h-10 flex items-center justify-center rounded-full mb-3 transition-colors ${
-                isWorkoutActive
-                ? 'bg-red-500/10 dark:bg-red-500/20 group-hover:bg-red-500/20 dark:group-hover:bg-red-500/30'
-                : 'bg-green-500/10 dark:bg-green-500/20 group-hover:bg-green-500/20 dark:group-hover:bg-green-500/30'
-              }`}>
-                <Zap className={`w-5 h-5 ${
-                  isWorkoutActive 
-                  ? 'text-red-600 dark:text-red-400'
-                  : 'text-green-600 dark:text-green-400'
-                }`} />
-              </div>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                {isWorkoutActive ? 'End Workout' : 'Start Workout'}
-              </span>
-            </button>
-
-            <Link href="/reports" passHref
-              className="flex flex-col items-center justify-center bg-gradient-to-b from-purple-50 to-purple-100 dark:from-purple-900/30 dark:to-purple-800/20 hover:from-purple-100 hover:to-purple-200 dark:hover:from-purple-800/40 dark:hover:to-purple-700/30 rounded-lg p-4 border border-purple-100 dark:border-purple-800/50 shadow-sm hover:shadow transition-all group"
-            >
-              <div className="w-10 h-10 flex items-center justify-center bg-purple-500/10 dark:bg-purple-500/20 rounded-full mb-3 group-hover:bg-purple-500/20 dark:group-hover:bg-purple-500/30 transition-colors">
-                <FileText className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-              </div>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">View Reports</span>
-            </Link>
-
-            <Link href="/settings" passHref
-              className="flex flex-col items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-800/50 dark:to-gray-700/30 hover:from-gray-100 hover:to-gray-200 dark:hover:from-gray-700/60 dark:hover:to-gray-600/40 rounded-lg p-4 border border-gray-200 dark:border-gray-700/50 shadow-sm hover:shadow transition-all group"
-            >
-              <div className="w-10 h-10 flex items-center justify-center bg-gray-500/10 dark:bg-gray-500/20 rounded-full mb-3 group-hover:bg-gray-500/20 dark:group-hover:bg-gray-500/30 transition-colors">
-                <Settings className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </div>
-              <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Settings</span>
-            </Link>
+          <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div className="h-full bg-blue-500 rounded-full" style={{ width: '65%' }} />
           </div>
+          <p className="text-xs mt-2 text-slate-500">Normal range</p>
         </div>
 
-        {/* Tab Content */}
-        <div className="mt-6">
-          {activeTab === "overview" && (
-            <div className="grid lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-8 space-y-6 overflow-hidden">
-                {/* If device is not connected, show message/skeleton */}
-                {!isConnected ? (
-                  <div className="bg-white rounded-2xl p-8 flex flex-col items-center justify-center shadow-md min-h-[300px]">
-                    <span className="text-3xl mb-2">🔌</span>
-                    <h2 className="text-xl font-semibold text-gray-700 mb-2">Device not connected</h2>
-                    <p className="text-gray-500">Please connect a device to view your health dashboard.</p>
-                  </div>
-                ) : (
-                  <>
-                    {/* Quick Stats - Redesigned */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                      {[
-                        { 
-                          title: "Heart Rate", 
-                          value: currentMetricsForDevice?.heartRate ? `${currentMetricsForDevice.heartRate.value}` : "-", 
-                          unit: "bpm",
-                          icon: <Heart className="w-6 h-6 text-red-500" />,
-                          bgColor: "bg-red-100/50",
-                          textColor: "text-red-700",
-                          trend: "+2%",
-                          trendUp: true
-                        },
-                        { 
-                          title: "Blood Oxygen", 
-                          value: currentMetricsForDevice?.bloodOxygen ? `${currentMetricsForDevice.bloodOxygen.value}` : "-", 
-                          unit: "%",
-                          icon: <Droplets className="w-6 h-6 text-blue-500" />,
-                          bgColor: "bg-blue-100/50",
-                          textColor: "text-blue-700",
-                          trend: "stable",
-                          trendUp: null
-                        },
-                        { 
-                          title: "Calories Burned", 
-                          value: currentMetricsForDevice?.caloriesBurned ? `${currentMetricsForDevice.caloriesBurned.value}` : "-", 
-                          unit: "kcal",
-                          icon: <Flame className="w-6 h-6 text-orange-500" />,
-                          bgColor: "bg-orange-100/50",
-                          textColor: "text-orange-700",
-                          trend: "+12%",
-                          trendUp: true
-                        },
-                        { 
-                          title: "Active Steps", 
-                          value: currentMetricsForDevice?.steps ? `${currentMetricsForDevice.steps.value}` : "-", 
-                          unit: "steps",
-                          icon: <Activity className="w-6 h-6 text-green-500" />,
-                          bgColor: "bg-green-100/50",
-                          textColor: "text-green-700",
-                          trend: "-5%",
-                          trendUp: false
-                        }
-                      ].map((stat, index) => (
-                        <div key={index} className={`p-4 rounded-xl shadow-sm hover:shadow-lg transition-all flex flex-col justify-between ${stat.bgColor}`}>
-                          <div className="flex items-center justify-between mb-3">
-                            <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                              {stat.icon}
-                            </div>
-                            {stat.trend && (
-                              <div className={`text-xs font-semibold flex items-center ${
-                                stat.trendUp === true ? 'text-green-600' : 
-                                stat.trendUp === false ? 'text-red-600' : 'text-gray-600'
-                              }`}>
-                                {stat.trendUp === true && <TrendingUp className="w-3.5 h-3.5 mr-0.5" />}
-                                {stat.trendUp === false && <TrendingUp className="w-3.5 h-3.5 mr-0.5 transform rotate-180" />}
-                                {stat.trend}
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <p className={`text-sm font-medium ${stat.textColor} mb-0.5`}>{stat.title}</p>
-                            <div className="flex items-baseline">
-                              <span className={`text-3xl font-bold ${stat.textColor}`}>{stat.value}</span>
-                              <span className={`text-sm ${stat.textColor}/80 ml-1`}>{stat.unit}</span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Heart Rate Monitor Card using new component */}
-                    <RealTimeHeartRate 
-                      metrics={{
-                        current: currentMetricsForDevice?.heartRate?.value ? Number(currentMetricsForDevice.heartRate.value) : 71,
-                        min: minHR || 63, 
-                        max: maxHR || 93,
-                        avg: avgHR || 70,
-                        resting: restingHR || 62
-                      }}
-                      timeFrame="Live"
-                      onTimeFrameChange={handleTimeFrameChange}
-                    />
-
-                    <NutritionSummaryCard summary={mockNutritionSummary} />
-                    <HydrationTrackerCard summary={mockHydrationSummary} onLogWater={(amount) => console.log("Logged water (mock):", amount, "ml")} />
-
-                    {/* Other components for Overview tab can go here */}
-                    <HealthTrendCard title="Sleep Patterns" historicalData={historicalData || []} selectedTimeRange={selectedTimeframe} />
-                  </>
-                )}
-              </div>
-
-              {/* Right Sidebar - Placeholder */}
-              <div className="lg:col-span-4 space-y-6">
-                <DeviceStatusCard
-                  availableDevices={availableDevices}
-                  selectedDeviceId={selectedDeviceId}
-                  isConnected={isConnected}
-                  onDeviceChange={handleDeviceChange}
-                  onToggleConnection={handleToggleConnection}
-                />
-                <ScheduleCard activities={scheduleActivities.slice(0,3)} />
-                <GoalProgressCard goals={mockGoals} />
-                <MedicationCard medications={mockMedications} />
-                {/* Placeholder for additional insights or summary */}
-                 <div className="bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg transition-shadow">
-                  <h2 className="text-lg font-semibold text-gray-800 mb-3">Performance Snapshot</h2>
-                  <div className="space-y-3">
-                      {[ 
-                          {label: "Improvement vs Last Week", value: performanceData.improvement, color: "text-green-500"},
-                          {label: "Activity vs Yesterday", value: performanceData.lastDay, color: "text-red-500"},
-                          {label: "Weekly Goal Progress", value: `${performanceData.progress}%`, color: "text-blue-500"}
-                      ].map(item => (
-                          <div key={item.label} className="flex justify-between items-center text-sm">
-                              <p className="text-gray-600">{item.label}</p>
-                              <p className={`font-semibold ${item.color}`}>{item.value}</p>
-                          </div>
-                      ))}
-                      <div className="pt-2">
-                          <div className="w-full bg-gray-200 rounded-full h-2.5">
-                              <div className="bg-blue-500 h-2.5 rounded-full" style={{width: `${performanceData.progress}%`}}></div>
-                          </div>
-                      </div>
-                  </div>
-                </div>
-              </div>
+        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm">
+          <div className="flex items-center mb-4">
+            <div className="bg-green-100 dark:bg-green-900/30 p-3 rounded-full mr-4">
+              <Activity className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
-          )}
-
-          {activeTab === "metrics" && (
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">Current Metric Values</h2>
-                {isLoading ? (
-                  <p>Loading metrics...</p>
-                ) : (
-                  <MetricsGrid metrics={adaptedMetrics} />
-                )}
-              </div>
-              <div>
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">Historical Trends</h2>
-                {isLoading ? (
-                  <p>Loading historical data...</p>
-                ) : (
-                  <div className="h-[400px]"> {/* Ensure HealthGraph has a defined height */}
-                    <HealthGraph data={historicalData || []} metrics={metricsForGraph} title="All Metrics Over Time" />
-                  </div>
-                )}
-              </div>
+            <div>
+              <h3 className="font-medium">Activity</h3>
+              <p className="text-2xl font-bold">8,243 steps</p>
             </div>
-          )}
+          </div>
+          <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div className="h-full bg-green-500 rounded-full" style={{ width: '75%' }} />
+          </div>
+          <p className="text-xs mt-2 text-slate-500">Target: 10,000 steps</p>
+        </div>
 
-          {activeTab === "activity" && (
-            // Placeholder for Log Activity content
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Log New Activity</h2>
-              <p className="text-gray-600">Form to log new activities, workouts, meals, etc. will be here. (Coming Soon)</p>
+        <div className="bg-white dark:bg-slate-800 rounded-lg p-6 shadow-sm">
+          <div className="flex items-center mb-4">
+            <div className="bg-purple-100 dark:bg-purple-900/30 p-3 rounded-full mr-4">
+              <BarChart3 className="h-6 w-6 text-purple-600 dark:text-purple-400" />
             </div>
-          )}
-
-          {activeTab === "insights" && (
-            // Placeholder for AI Insights content
-            <div className="bg-white rounded-2xl p-6 shadow-sm">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">AI-Powered Insights</h2>
-              <p className="text-gray-600">Personalized insights and recommendations based on your health data. (Coming Soon)</p>
+            <div>
+              <h3 className="font-medium">Sleep</h3>
+              <p className="text-2xl font-bold">7h 23m</p>
             </div>
-          )}
+          </div>
+          <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+            <div className="h-full bg-purple-500 rounded-full" style={{ width: '85%' }} />
+          </div>
+          <p className="text-xs mt-2 text-slate-500">Good quality</p>
         </div>
       </div>
+
+      <section className="mt-8">
+        <h2 className="text-xl font-bold mb-4">Recent Activity</h2>
+        <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm overflow-hidden">
+          {[1, 2, 3].map((i) => (
+            <div 
+              key={i} 
+              className="p-4 border-b border-slate-100 dark:border-slate-700 last:border-0 flex justify-between items-center"
+            >
+              <div className="flex items-center">
+                <div className="bg-slate-100 dark:bg-slate-700 p-2 rounded-full mr-4">
+                  <RefreshCw className="h-4 w-4 text-slate-500" />
+                </div>
+                <div>
+                  <p className="font-medium">Daily sync completed</p>
+                  <p className="text-sm text-slate-500">{i} hour{i > 1 ? 's' : ''} ago</p>
+                </div>
+              </div>
+              <Link href="#" className="text-blue-500 text-sm hover:underline">
+                View
+              </Link>
+            </div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 } 
