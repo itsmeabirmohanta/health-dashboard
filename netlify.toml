@@ -5,7 +5,26 @@
 [build.environment]
   NODE_VERSION = "18"
   NPM_VERSION = "9"
+  NEXT_TELEMETRY_DISABLED = "1"
 
 # Cache the Next.js build properly
 [[plugins]]
-  package = "@netlify/plugin-nextjs" 
+  package = "@netlify/plugin-nextjs"
+
+# Handle SPA redirects
+[[redirects]]
+  from = "/*"
+  to = "/fallback.html"
+  status = 200
+  force = false
+  conditions = {error = true}
+
+# Improve performance with headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'" 

@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "netlify-deploy": "npm run build && npx @netlify/build"
+    "netlify-deploy": "CI=true npm run build && npm install -g netlify-cli && netlify deploy --build --prod"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",

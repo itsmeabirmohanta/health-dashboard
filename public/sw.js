@@ -1,13 +1,16 @@
 // Service Worker for PWA support
-const CACHE_NAME = 'fitpulse-cache-v1';
+const CACHE_NAME = 'fitpulse-cache-v2';
 
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/icons/icon-72x72.svg',
+  '/icons/icon-192x192.svg',
   '/icons/icon-192x192.png',
+  '/icons/icon-512x512.svg',
   '/icons/icon-512x512.png',
-  // Add other important assets here
+  '/offline'
 ];
 
 // Installation - Cache basic assets
@@ -17,30 +20,55 @@ self.addEventListener('install', (event) => {
       return cache.addAll(urlsToCache);
     })
   );
+  // Force this service worker to activate immediately
+  self.skipWaiting();
 });
 
-// Fetch strategy - Try network first, fall back to cache
+// Show offline page when fetch fails and no cache exists
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Cache the fetched response
-        if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
+    // Try the cache first
+    caches.match(event.request)
+      .then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
         }
-        return response;
-      })
-      .catch(() => {
-        // If network fails, try to return from cache
-        return caches.match(event.request);
+        
+        // If not in cache, fetch from network
+        return fetch(event.request)
+          .then((response) => {
+            // Don't cache responses that aren't successful
+            if (!response || response.status !== 200 || response.type !== 'basic') {
+              return response;
+            }
+
+            // IMPORTANT: Clone the response before caching
+            const responseToCache = response.clone();
+
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+
+            return response;
+          })
+          .catch(() => {
+            // If fetch fails (offline), try to show offline page for navigation requests
+            if (event.request.mode === 'navigate') {
+              return caches.match('/offline');
+            }
+            
+            // Return an empty response for other resources
+            return new Response('', {
+              status: 408, // Request Timeout
+              statusText: 'Network connection unavailable'
+            });
+          });
       })
   );
 });
 
-// Update cache when new service worker activates
+// Clean up old caches when new service worker activates
 self.addEventListener('activate', (event) => {
   const cacheWhitelist = [CACHE_NAME];
   event.waitUntil(
@@ -53,6 +81,8 @@ self.addEventListener('activate', (event) => {
         })
       );
     })
+    // Tell clients to update
+    .then(() => self.clients.claim())
   );
 });
 
