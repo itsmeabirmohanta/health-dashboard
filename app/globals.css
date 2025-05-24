@@ -93,6 +93,22 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+    --container-padding-x: 1rem;
+    --container-padding-y: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    :root {
+      --container-padding-x: 1.5rem;
+      --container-padding-y: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --container-padding-x: 2rem;
+      --container-padding-y: 2rem;
+    }
   }
 
   .dark {
@@ -126,6 +142,26 @@
   body {
     @apply bg-[#F7F8FA] text-slate-900 min-h-screen;
   }
+
+  /* Improved text rendering */
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Fix for iOS devices */
+  @supports (-webkit-touch-callout: none) {
+    .min-h-screen {
+      min-height: -webkit-fill-available;
+    }
+  }
+
+  /* Make images responsive by default */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
 }
 
 @layer utilities {
@@ -155,6 +191,42 @@
 
   .gradient-bg {
     background: linear-gradient(135deg, #ff8a4c 0%, #ff6b3d 100%);
+  }
+  
+  /* Safe area insets for notched devices */
+  .safe-padding-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-padding-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-padding-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-padding-right {
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Responsive container that uses CSS variables */
+  .responsive-container {
+    padding-left: var(--container-padding-x);
+    padding-right: var(--container-padding-x);
+    padding-top: var(--container-padding-y);
+    padding-bottom: var(--container-padding-y);
+  }
+  
+  /* Flex gap fix for Safari */
+  @supports not (gap: 1rem) {
+    .flex-gap > * + * {
+      margin-left: 1rem;
+    }
+    
+    .flex-col-gap > * + * {
+      margin-top: 1rem;
+    }
   }
 }
 
@@ -239,78 +311,23 @@
     @apply text-sm text-gray-500;
   }
 
-  .heart-rate-monitor {
-    @apply relative flex items-center justify-center;
+  /* Responsive touch targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
   }
 
-  .heart-rate-value {
-    @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
-    text-4xl font-bold text-gray-900;
+  /* Fix FOUC (Flash of unstyled content) */
+  .no-fouc {
+    @apply opacity-0 transition-opacity duration-200;
   }
-
-  .heart-rate-status {
-    @apply text-sm font-medium;
+  
+  .no-fouc.ready {
+    @apply opacity-100;
   }
-
-  .heart-rate-status.normal {
-    @apply text-green-500;
-  }
-
-  .heart-rate-status.warning {
-    @apply text-yellow-500;
-  }
-
-  .heart-rate-status.critical {
-    @apply text-red-500;
-  }
-
-  .oxygen-gauge {
-    @apply relative flex items-center justify-center;
-  }
-
-  .oxygen-value {
-    @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
-    text-4xl font-bold text-blue-500;
-  }
-
-  .oxygen-status {
-    @apply text-sm font-medium;
-  }
-
-  .oxygen-status.normal {
-    @apply text-green-500;
-  }
-
-  .oxygen-status.warning {
-    @apply text-yellow-500;
-  }
-
-  .oxygen-status.critical {
-    @apply text-red-500;
-  }
-
-  .metric-zone {
-    @apply flex items-center justify-between py-2 px-4 rounded-lg transition-all;
-  }
-
-  .metric-zone-indicator {
-    @apply w-2 h-2 rounded-full mr-2;
-  }
-
-  .metric-zone-label {
-    @apply text-sm font-medium text-gray-700;
-  }
-
-  .metric-zone-value {
-    @apply text-sm text-gray-500;
-  }
-
-  .real-time-badge {
-    @apply flex items-center gap-1 px-2 py-0.5 bg-white/60 rounded-md text-xs text-gray-500;
-  }
-
-  .real-time-indicator {
-    @apply w-2 h-2 rounded-full bg-red-500 animate-pulse;
+  
+  /* Mobile-first grid system */
+  .mobile-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6;
   }
 }
 

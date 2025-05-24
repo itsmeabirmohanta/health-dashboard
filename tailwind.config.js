@@ -5,11 +5,19 @@ module.exports = {
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: ["class", "class"],
+  darkMode: "class",
   future: {
     hoverOnlyWhenSupported: true,
   },
   theme: {
+    screens: {
+      xs: "375px",
+      sm: "640px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
+    },
   	extend: {
   		colors: {
   			border: 'hsl(var(--border))',
@@ -71,7 +79,10 @@ module.exports = {
   		animation: {
   			heartbeat: 'heartbeat 0.6s ease-in-out',
   			'pulse-ring': 'pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-  			bubble: 'bubble 3s ease-in-out infinite'
+  			bubble: 'bubble 3s ease-in-out infinite',
+        fadeIn: 'fadeIn 0.5s ease-in-out',
+        slideIn: 'slideIn 0.5s ease-in-out',
+        slideInFromBottom: 'slideInFromBottom 0.5s ease-in-out',
   		},
   		keyframes: {
   			heartbeat: {
@@ -104,7 +115,19 @@ module.exports = {
   					transform: 'translateY(-100px)',
   					opacity: '0'
   				}
-  			}
+  			},
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        slideIn: {
+          '0%': { transform: 'translateX(100%)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
+        },
+        slideInFromBottom: {
+          '0%': { transform: 'translateY(100%)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
   		},
   		backgroundImage: {
   			'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))'
@@ -113,7 +136,19 @@ module.exports = {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
-  		}
+  		},
+      spacing: {
+        'safe-top': 'env(safe-area-inset-top)',
+        'safe-bottom': 'env(safe-area-inset-bottom)',
+        'safe-left': 'env(safe-area-inset-left)',
+        'safe-right': 'env(safe-area-inset-right)',
+      },
+      height: {
+        screen: ['100vh', '100dvh'],
+      },
+      minHeight: {
+        screen: ['100vh', '100dvh'],
+      },
   	}
   },
   plugins: [
