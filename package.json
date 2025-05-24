@@ -10,6 +10,7 @@
     "netlify-deploy": "npm run build && npx @netlify/build"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@types/uuid": "^10.0.0",

@@ -48,6 +48,7 @@ interface SidebarProps {
   toggleSidebar: () => void;
   onAddDevice?: () => void;
   username?: string;
+  isMobile?: boolean;
 }
 
 const navItems: NavItem[] = [
@@ -64,7 +65,7 @@ const navItems: NavItem[] = [
   { href: "/settings", icon: Settings, label: "Settings" },
 ];
 
-export function Sidebar({ collapsed, toggleSidebar, onAddDevice, username = "Demo User" }: SidebarProps) {
+export function Sidebar({ collapsed, toggleSidebar, onAddDevice, username = "Demo User", isMobile = false }: SidebarProps) {
   const pathname = usePathname();
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -81,23 +82,38 @@ export function Sidebar({ collapsed, toggleSidebar, onAddDevice, username = "Dem
   }
 
   const isDark = theme === "dark";
+  
+  // On mobile, use a different approach for the sidebar
+  const sidebarClasses = isMobile ? 
+    cn(
+      "fixed inset-y-0 left-0 z-[100] h-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-r border-gray-200/50 dark:border-gray-700/50 flex flex-col transition-all duration-200 ease-out transform",
+      collapsed ? "-translate-x-full" : "translate-x-0",
+      "shadow-xl w-[280px]"
+    ) : 
+    cn(
+      "fixed inset-y-0 left-0 z-50 h-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-r border-gray-200/50 dark:border-gray-700/50 flex flex-col transition-all duration-300 ease-in-out group",
+      collapsed ? "w-[4.5rem]" : "w-64"
+    );
 
   return (
     <TooltipProvider delayDuration={0}>
-      <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 h-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-r border-gray-200/50 dark:border-gray-700/50 flex flex-col transition-all duration-300 ease-in-out group",
-          collapsed ? "w-[4.5rem]" : "w-64"
+      <aside className={sidebarClasses}>
+        {/* Mobile Overlay - Only visible on mobile when sidebar is open */}
+        {isMobile && !collapsed && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-[99]" 
+            onClick={toggleSidebar}
+          />
         )}
-      >
-        {/* Logo & Brand Section - Updated to match Header styling */}
+        
+        {/* Logo & Brand Section */}
         <div
           className={cn(
             "flex items-center border-b border-gray-200/50 dark:border-gray-700/50 py-4",
-            collapsed ? "h-20 justify-center" : "h-20 px-4 justify-between"
+            collapsed && !isMobile ? "h-20 justify-center" : "h-20 px-4 justify-between"
           )}
         >
-          {!collapsed && (
+          {(!collapsed || isMobile) && (
             <Link href="/" className="flex items-center gap-2.5 group">
               <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-all">
                 <Heart className="w-6 h-6 text-white" />
@@ -108,25 +124,26 @@ export function Sidebar({ collapsed, toggleSidebar, onAddDevice, username = "Dem
               </span>
             </Link>
           )}
-          {collapsed && (
+          {collapsed && !isMobile && (
             <Link href="/" className="flex items-center justify-center">
               <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center shadow-sm hover:shadow-md transition-all">
                 <Heart className="w-6 h-6 text-white" />
               </div>
             </Link>
           )}
-          {!collapsed && (
+          {((!collapsed && !isMobile) || (!collapsed && isMobile)) && (
             <button
               onClick={toggleSidebar}
               className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              aria-label="Close Sidebar"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <X className="w-5 h-5" />
             </button>
           )}
         </div>
         
         {/* User Profile Section */}
-        {!collapsed && (
+        {(!collapsed || isMobile) && (
           <div className="px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -142,13 +159,13 @@ export function Sidebar({ collapsed, toggleSidebar, onAddDevice, username = "Dem
           </div>
         )}
 
-        {/* Action Buttons - Only visible when not collapsed */}
-        {!collapsed && (
+        {/* Action Buttons */}
+        {(!collapsed || isMobile) && (
           <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-200/50 dark:border-gray-700/50">
             {onAddDevice && (
               <button
                 onClick={onAddDevice}
-                className="flex items-center justify-center gap-2 py-1.5 px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium flex-1 transition-colors"
+                className="flex items-center justify-center gap-2 py-1.5 px-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-medium flex-1 transition-colors touch-target"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Device</span>
@@ -157,7 +174,7 @@ export function Sidebar({ collapsed, toggleSidebar, onAddDevice, username = "Dem
             
             <Link
               href="/alerts"
-              className="relative p-2 rounded-lg bg-white/80 dark:bg-gray-700/80 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow-sm flex-shrink-0"
+              className="relative p-2 rounded-lg bg-white/80 dark:bg-gray-700/80 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow-sm flex-shrink-0 touch-target"
             >
               <Bell className="w-4 h-4 text-gray-600 dark:text-gray-300" />
               {unreadAlertCount > 0 && (
@@ -169,7 +186,7 @@ export function Sidebar({ collapsed, toggleSidebar, onAddDevice, username = "Dem
             
             <Link
               href="/settings"
-              className="p-2 rounded-lg bg-white/80 dark:bg-gray-700/80 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow-sm flex-shrink-0"
+              className="p-2 rounded-lg bg-white/80 dark:bg-gray-700/80 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors shadow-sm flex-shrink-0 touch-target"
             >
               <Settings className="w-4 h-4 text-gray-600 dark:text-gray-300" />
             </Link>
