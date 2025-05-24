@@ -167,7 +167,7 @@ export default function ReportsPage() {
                 ))}
               </tbody>
             </table>
-          </div>
+      </div>
         ) : (
           <p className="text-center py-8 text-gray-500 dark:text-gray-400">No reports generated yet.</p>
         )}

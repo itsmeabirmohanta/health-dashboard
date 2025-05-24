@@ -54,24 +54,24 @@ export default function SettingsPage() {
         <div className="space-y-4">
           <div>
             <label className={labelClass}>Email Notifications</label>
-            <input 
-              type="checkbox" 
+                      <input
+                        type="checkbox"
               checked={settings.notifications.email}
               onChange={(e) => handleSettingChange('notifications', 'email', e.target.checked)}
               className="mt-1 rounded text-primary-600 focus:ring-primary-500"
-            />
-          </div>
+                      />
+                    </div>
           <div>
             <label className={labelClass}>Push Notifications</label>
-            <input 
-              type="checkbox" 
+                      <input
+                        type="checkbox"
               checked={settings.notifications.push}
               onChange={(e) => handleSettingChange('notifications', 'push', e.target.checked)}
               className="mt-1 rounded text-primary-600 focus:ring-primary-500"
-            />
-          </div>
+                      />
+                    </div>
           {/* Add more notification settings as needed */}
-        </div>
+                    </div>
       </section>
 
       {/* Appearance Settings */}
@@ -79,74 +79,74 @@ export default function SettingsPage() {
         <h2 className={h2Class}><Palette className="w-6 h-6 text-purple-500" /> Appearance</h2>
         <div>
           <label htmlFor="theme" className={labelClass}>Theme</label>
-          <select 
+                    <select
             name="theme" 
-            id="theme" 
+                id="theme"
             value={settings.theme}
             onChange={(e) => handleSettingChange('appearance', 'theme', e.target.value)} // 'appearance' category
             className={inputClass}
-          >
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
             <option value="system">System Default</option>
-          </select>
-        </div>
+              </select>
+                </div>
       </section>
       
       {/* Account Security Settings */}
       <section className={sectionClass}>
         <h2 className={h2Class}><Lock className="w-6 h-6 text-red-500" /> Account Security</h2>
         <div className="space-y-4">
-          <div>
+                      <div>
             <label className={labelClass}>Enable Two-Factor Authentication (2FA)</label>
-            <input 
+                        <input
               type="checkbox" 
               checked={settings.account.twoFactorAuth}
               onChange={(e) => handleSettingChange('account', 'twoFactorAuth', e.target.checked)}
               className="mt-1 rounded text-primary-600 focus:ring-primary-500"
-            />
-          </div>
+                        />
+                </div>
           <button className="text-sm text-primary-600 hover:underline">Change Password</button>
-        </div>
+                      </div>
       </section>
-
+              
       {/* Data Privacy Settings */}
       <section className={sectionClass}>
         <h2 className={h2Class}><Shield className="w-6 h-6 text-green-500" /> Data & Privacy</h2>
         <div className="space-y-4">
-          <div>
+                      <div>
             <label className={labelClass}>Share Anonymous Usage Data</label>
-            <input 
+                        <input
               type="checkbox" 
               checked={settings.dataPrivacy.shareData}
               onChange={(e) => handleSettingChange('dataPrivacy', 'shareData', e.target.checked)}
               className="mt-1 rounded text-primary-600 focus:ring-primary-500"
-            />
-          </div>
-          <div>
+                      />
+              </div>
+                      <div>
             <label htmlFor="dataRetentionPeriod" className={labelClass}>Data Retention Period (days)</label>
-            <input 
-              type="number"
+                        <input
+                          type="number"
               name="dataRetentionPeriod"
               id="dataRetentionPeriod"
               value={settings.dataPrivacy.dataRetentionPeriod}
               onChange={(e) => handleSettingChange('dataPrivacy', 'dataRetentionPeriod', e.target.value)}
               className={inputClass}
               placeholder="e.g., 365"
-            />
-          </div>
+                        />
+                      </div>
           <button className="text-sm text-primary-600 hover:underline">Download My Data</button>
-        </div>
+              </div>
       </section>
 
       <div className="mt-10 flex justify-end">
-        <button 
+                  <button
           onClick={() => alert("Settings saved (mock)!")}
           className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg shadow-md transition-colors duration-150"
-        >
+                  >
           Save Settings
-        </button>
-      </div>
-    </div>
+                    </button>
+                </div>
+                  </div>
   );
 } 

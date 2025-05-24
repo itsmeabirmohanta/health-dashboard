@@ -64,8 +64,8 @@ export function HeartRateMonitor({
     
     const intervalId = setInterval(() => {
       setIsBeating(true);
-      // Reset animation after a short delay
-      setTimeout(() => setIsBeating(false), 300);
+      // Reset animation after a short delay, matching CSS animation duration
+      setTimeout(() => setIsBeating(false), 600); // Changed from 500ms to 600ms
     }, beatInterval);
     
     return () => clearInterval(intervalId);
@@ -105,7 +105,7 @@ export function HeartRateMonitor({
         {/* Pulsing animation */}
         {showAnimation && (
           <div className={cn(
-            "absolute inset-0 rounded-full animate-pulse-ring",
+            "absolute inset-0 rounded-full",
             isBeating ? "opacity-100" : "opacity-0",
             "transition-opacity duration-300"
           )}>
@@ -120,13 +120,12 @@ export function HeartRateMonitor({
         <div className={cn(
           "relative flex items-center justify-center",
           isBeating ? "scale-110" : "scale-100",
-          "transition-transform duration-150 ease-in-out"
+          "transition-transform duration-300 ease-in-out"
         )}>
           <Heart 
             className={cn(
               statusColors[status].text,
-              sizeClasses[size].icon,
-              isBeating ? "animate-heartbeat" : ""
+              sizeClasses[size].icon
             )}
             fill="currentColor"
           />
@@ -162,4 +161,30 @@ export function HeartRateMonitor({
       </div>
     </div>
   );
+}
+
+// Add these keyframes to your global CSS or use as inline styles with the style tag
+const HeartbeatKeyframes = `
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+}
+.animate-heartbeat {
+  animation: heartbeat 0.5s ease-in-out;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.7; }
+  100% { transform: scale(1.2); opacity: 0; }
+}
+.animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+`;
+
+// Add these styles to your global stylesheet or somewhere in your app
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.innerHTML = HeartbeatKeyframes;
+  document.head.appendChild(style);
 } 

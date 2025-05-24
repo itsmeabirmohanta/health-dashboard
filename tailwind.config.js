@@ -6,6 +6,9 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: ["class", "class"],
+  future: {
+    hoverOnlyWhenSupported: true,
+  },
   theme: {
   	extend: {
   		colors: {
@@ -66,7 +69,7 @@ module.exports = {
   			]
   		},
   		animation: {
-  			heartbeat: 'heartbeat 0.3s ease-in-out',
+  			heartbeat: 'heartbeat 0.6s ease-in-out',
   			'pulse-ring': 'pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
   			bubble: 'bubble 3s ease-in-out infinite'
   		},
@@ -113,5 +116,8 @@ module.exports = {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/aspect-ratio")
+  ],
 }
