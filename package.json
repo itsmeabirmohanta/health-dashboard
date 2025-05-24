@@ -5,9 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "export": "next export",
+    "build-static": "next build && npm run copy-public",
+    "copy-public": "cp -r public/* out/",
     "start": "next start",
     "lint": "next lint",
-    "netlify-deploy": "CI=true npm run build && npm install -g netlify-cli && netlify deploy --build --prod"
+    "netlify-deploy": "CI=true npm run build && cp -r public/fallback.html out/ && cp -r public/icons out/ && netlify deploy --build --prod"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",

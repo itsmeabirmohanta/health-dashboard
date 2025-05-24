@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitPulse Health Dashboard - Script Error</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: linear-gradient(to bottom right, #ffffff, #f3f4f6);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #111827;
+    }
+    
+    .dark {
+      background: linear-gradient(to bottom right, #0f172a, #1e293b);
+      color: #f3f4f6;
+    }
+    
+    .container {
+      width: 90%;
+      max-width: 600px;
+      padding: 2rem;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark .container {
+      background-color: rgba(30, 41, 59, 0.9);
+    }
+    
+    .logo {
+      margin-bottom: 1.5rem;
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(to bottom right, #ef4444, #b91c1c);
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .heart {
+      color: white;
+      font-size: 2.5rem;
+    }
+    
+    h1 {
+      margin: 0 0 1rem;
+      font-size: 1.5rem;
+    }
+    
+    p {
+      margin: 0 0 1.5rem;
+      color: #6b7280;
+    }
+    
+    .dark p {
+      color: #9ca3af;
+    }
+    
+    code {
+      background-color: #f3f4f6;
+      padding: 0.2em 0.4em;
+      border-radius: 0.25rem;
+      font-family: monospace;
+      font-size: 0.9em;
+      color: #ef4444;
+    }
+    
+    .dark code {
+      background-color: #1f2937;
+      color: #f87171;
+    }
+    
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 1.5rem;
+    }
+    
+    .btn {
+      background-color: #ef4444;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+      text-decoration: none;
+      display: block;
+      font-size: 1rem;
+    }
+    
+    .btn:hover {
+      background-color: #dc2626;
+    }
+    
+    .btn-secondary {
+      background-color: transparent;
+      border: 1px solid #e5e7eb;
+      color: #6b7280;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #f3f4f6;
+      color: #111827;
+    }
+    
+    .dark .btn-secondary {
+      border-color: #374151;
+      color: #9ca3af;
+    }
+    
+    .dark .btn-secondary:hover {
+      background-color: #374151;
+      color: #f3f4f6;
+    }
+    
+    .error-details {
+      background-color: #f3f4f6;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin: 1rem 0;
+      max-height: 150px;
+      overflow-y: auto;
+      text-align: left;
+      word-break: break-all;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+    
+    .dark .error-details {
+      background-color: #1f2937;
+      color: #e5e7eb;
+    }
+    
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <div class="heart">♥</div>
+    </div>
+    <h1>Script Loading Error</h1>
+    <p>We encountered an issue loading some resources for the application.</p>
+    <p>This often happens when there's a problem with cached files or webpack chunks.</p>
+    
+    <div id="errorDetails" class="error-details hidden">
+      <!-- Error will be displayed here -->
+    </div>
+    
+    <div class="buttons">
+      <button onclick="clearCacheAndReload()" class="btn">Clear Cache & Reload</button>
+      <button onclick="toggleErrorDetails()" id="toggleBtn" class="btn-secondary">Show Error Details</button>
+      <a href="/" class="btn-secondary">Return to Home</a>
+    </div>
+  </div>
+
+  <script>
+    // Check if user prefers dark mode
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.body.classList.add('dark');
+    }
+    
+    // Parse the URL parameters to get the error details
+    function getErrorFromURL() {
+      const params = new URLSearchParams(window.location.search);
+      return {
+        message: params.get('message') || 'Unknown script loading error',
+        chunk: params.get('chunk') || 'Unknown',
+        url: params.get('url') || 'Unknown URL'
+      };
+    }
+    
+    // Display the error details
+    function displayError() {
+      const error = getErrorFromURL();
+      const errorDetails = document.getElementById('errorDetails');
+      errorDetails.textContent = `Error: ${error.message}\nChunk: ${error.chunk}\nURL: ${error.url}`;
+    }
+    
+    // Toggle error details visibility
+    function toggleErrorDetails() {
+      const errorDetails = document.getElementById('errorDetails');
+      const toggleBtn = document.getElementById('toggleBtn');
+      
+      if (errorDetails.classList.contains('hidden')) {
+        displayError();
+        errorDetails.classList.remove('hidden');
+        toggleBtn.textContent = 'Hide Error Details';
+      } else {
+        errorDetails.classList.add('hidden');
+        toggleBtn.textContent = 'Show Error Details';
+      }
+    }
+    
+    // Clear cache and reload
+    function clearCacheAndReload() {
+      if ('caches' in window) {
+        caches.keys().then((keyList) => {
+          return Promise.all(keyList.map((key) => {
+            return caches.delete(key);
+          }));
+        }).then(() => {
+          window.location.reload(true);
+        });
+      } else {
+        // If Cache API is not available, just force reload
+        window.location.reload(true);
+      }
+    }
+    
+    // Add event handler for unhandled Promise rejections
+    window.addEventListener('unhandledrejection', function(event) {
+      const err = event.reason;
+      if (err && err.message && (
+          err.message.includes('chunk') || 
+          err.message.includes('script') || 
+          err.message.includes('module')
+        )) {
+        console.error('Webpack chunk loading error:', err);
+      }
+    });
+  </script>
+</body>
+</html> 

@@ -15,6 +15,10 @@ export default function Document() {
         <noscript>
           <meta httpEquiv="refresh" content="0;url=/fallback.html" />
         </noscript>
+        <script 
+          src="/webpack-error-handler.js" 
+          dangerouslySetInnerHTML={{ __html: '' }}
+        />
       </Head>
       <body>
         <Main />
